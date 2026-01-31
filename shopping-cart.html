@@ -77,6 +77,11 @@
             -webkit-tap-highlight-color: transparent;
         }
         
+        /* Safe area padding for mobile browsers */
+        .pb-safe {
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 0px;
@@ -140,13 +145,6 @@
         
         .safe-area-bottom {
             padding-bottom: env(safe-area-inset-bottom);
-        }
-        
-        /* Extra padding for mobile browser bars */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-            .mobile-browser-safe {
-                padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
-            }
         }
         
         /* Empty cart animation */
@@ -214,7 +212,7 @@
         </main>
 
         <!-- Empty Cart State (Hidden by default) -->
-        <div id="emptyCart" class="hidden flex-1 flex flex-col bg-background-light dark:bg-background-dark items-center justify-center text-center p-4 mb-20">
+        <div id="emptyCart" class="hidden flex-1 flex flex-col bg-background-light dark:bg-background-dark items-center justify-center text-center p-4">
             <div class="flex flex-col items-center gap-6">
                 <span class="material-symbols-outlined text-8xl text-text-muted-light dark:text-text-muted-dark empty-cart-icon">shopping_cart</span>
                 <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Sepetiniz Boş</h2>
@@ -226,7 +224,7 @@
         </div>
 
         <!-- Cart Summary - Fixed at bottom -->
-        <div id="cartSummary" class="shrink-0 bg-background-light dark:bg-background-dark p-4 border-t border-border-light dark:border-border-dark mb-20">
+        <div id="cartSummary" class="shrink-0 bg-background-light dark:bg-background-dark p-4 border-t border-border-light dark:border-border-dark pb-safe">
             <div class="p-4 bg-card-background-light dark:bg-card-background-dark rounded-xl shadow-soft">
                 <div class="flex justify-between gap-x-6 py-2">
                     <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Ara Toplam</p>
@@ -253,24 +251,6 @@
             </div>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom pb-2">
-            <div class="flex px-2 py-1">
-                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
-                    <span class="material-symbols-outlined text-2xl">home</span>
-                    <p class="text-xs font-medium">Ana Sayfa</p>
-                </a>
-                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2 relative" href="shopping-cart.html">
-                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
-                    <p class="text-primary text-xs font-semibold">Sepet</p>
-                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
-                </a>
-                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="user-profile.html">
-                    <span class="material-symbols-outlined text-2xl">person</span>
-                    <p class="text-xs font-medium">Profil</p>
-                </a>
-            </div>
-        </nav>
 
     </div>
 
