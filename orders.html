@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#008080"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <title>Siparişlerim - Modern Shopping App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#008080",
+                        "primary-dark": "#006666",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101922",
+                        "card-background-light": "#F8F9FA",
+                        "card-background-dark": "#1a242d",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Touch improvements */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        /* Header button animations */
+        .header-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .header-button:active {
+            transform: scale(0.9);
+        }
+        
+        /* Order card animations */
+        .order-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .order-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Status badge colors */
+        .status-processing {
+            background-color: rgba(234, 179, 8, 0.1);
+            color: #ca8a04;
+        }
+        
+        .status-shipped {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+        
+        .status-delivered {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+        
+        /* Safe area for mobile devices */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Empty state animation */
+        .empty-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md safe-area-top">
+            <div class="flex items-center p-4 pb-2 justify-between">
+                <button class="header-button flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors" onclick="goBack()">
+                    <span class="material-symbols-outlined text-2xl text-text-light dark:text-text-dark">arrow_back</span>
+                </button>
+                
+                <h1 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Siparişlerim</h1>
+                
+                <div class="w-12"></div>
+            </div>
+        </header>
+
+        <!-- Orders List -->
+        <main class="flex-grow px-4 pb-24" id="ordersContent">
+            <div id="ordersList" class="space-y-4">
+                <!-- Orders will be rendered here -->
+            </div>
+        </main>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="emptyState" class="hidden flex-grow flex flex-col items-center justify-center text-center p-4 pb-24">
+            <span class="material-symbols-outlined text-8xl text-text-muted-light dark:text-text-muted-dark empty-icon mb-6">inventory_2</span>
+            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-2">Henüz Siparişiniz Yok</h2>
+            <p class="text-text-muted-light dark:text-text-muted-dark max-w-xs mb-6">Sipariş verdiğinizde burada görünecektir.</p>
+            <button class="bg-primary text-white font-bold py-3 px-8 rounded-xl" onclick="startShopping()">
+                Alışverişe Başla
+            </button>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+            <div class="flex px-2 py-1">
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
+                    <span class="material-symbols-outlined text-2xl">home</span>
+                    <p class="text-xs font-medium">Ana Sayfa</p>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2 relative" href="shopping-cart.html">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    <p class="text-xs font-medium">Sepet</p>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2" href="user-profile.html">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+                    <p class="text-primary text-xs font-semibold">Profil</p>
+                </a>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeOrderDetail()"></div>
+        
+        <!-- Modal Content -->
+        <div class="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark rounded-t-3xl max-h-[85vh] overflow-hidden animate-slide-up">
+            <div class="sticky top-0 bg-background-light dark:bg-background-dark p-4 border-b border-border-light dark:border-border-dark flex items-center justify-between">
+                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Sipariş Detayı</h3>
+                <button onclick="closeOrderDetail()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-text-light dark:text-text-dark">close</span>
+                </button>
+            </div>
+            <div id="orderDetailContent" class="p-4 overflow-y-auto max-h-[70vh]">
+                <!-- Order detail will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slide-up {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .animate-slide-up {
+            animation: slide-up 0.3s ease-out;
+        }
+    </style>
+
+    <!-- Cart Manager -->
+    <script src="cart-manager.js"></script>
+    
+    <!-- JavaScript -->
+    <script>
+        // Get orders from localStorage
+        function getOrders() {
+            return JSON.parse(localStorage.getItem('orders') || '[]');
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return date.toLocaleDateString('tr-TR', options);
+        }
+        
+        // Get status text and class
+        function getStatusInfo(status) {
+            const statusMap = {
+                'processing': { text: 'Hazırlanıyor', class: 'status-processing', icon: 'hourglass_top' },
+                'shipped': { text: 'Kargoya Verildi', class: 'status-shipped', icon: 'local_shipping' },
+                'delivered': { text: 'Teslim Edildi', class: 'status-delivered', icon: 'check_circle' }
+            };
+            return statusMap[status] || statusMap['processing'];
+        }
+        
+        // Render orders
+        function renderOrders() {
+            const orders = getOrders();
+            const ordersList = document.getElementById('ordersList');
+            const emptyState = document.getElementById('emptyState');
+            const ordersContent = document.getElementById('ordersContent');
+            
+            if (orders.length === 0) {
+                ordersContent.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            ordersContent.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            ordersList.innerHTML = orders.map((order, index) => {
+                const statusInfo = getStatusInfo(order.status);
+                const firstItem = order.items[0];
+                const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                
+                return `
+                    <div class="order-card bg-card-background-light dark:bg-card-background-dark rounded-xl shadow-soft p-4 cursor-pointer" onclick="openOrderDetail(${index})">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <p class="font-bold text-text-light dark:text-text-dark">${order.orderNumber}</p>
+                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark">${formatDate(order.date)}</p>
+                            </div>
+                            <div class="flex items-center gap-1 px-3 py-1 rounded-full ${statusInfo.class}">
+                                <span class="material-symbols-outlined text-sm">${statusInfo.icon}</span>
+                                <span class="text-xs font-medium">${statusInfo.text}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-16 h-16 rounded-lg bg-cover bg-center shrink-0" style="background-image: url('${firstItem.image}');"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-text-light dark:text-text-dark truncate">${firstItem.name}</p>
+                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark">
+                                    ${itemCount > 1 ? `+${itemCount - 1} ürün daha` : `${firstItem.size} - ${firstItem.quantity} adet`}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-3 border-t border-border-light dark:border-border-dark">
+                            <span class="text-sm text-text-muted-light dark:text-text-muted-dark">Toplam</span>
+                            <span class="font-bold text-primary text-lg">₺${order.total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Open order detail
+        function openOrderDetail(index) {
+            const orders = getOrders();
+            const order = orders[index];
+            const statusInfo = getStatusInfo(order.status);
+            
+            const content = document.getElementById('orderDetailContent');
+            
+            content.innerHTML = `
+                <!-- Order Header -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-xl text-text-light dark:text-text-dark">${order.orderNumber}</span>
+                        <div class="flex items-center gap-1 px-3 py-1 rounded-full ${statusInfo.class}">
+                            <span class="material-symbols-outlined text-sm">${statusInfo.icon}</span>
+                            <span class="text-xs font-medium">${statusInfo.text}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">${formatDate(order.date)}</p>
+                </div>
+                
+                <!-- Order Timeline -->
+                <div class="mb-6">
+                    <h4 class="font-semibold mb-3 text-text-light dark:text-text-dark">Sipariş Durumu</h4>
+                    <div class="flex items-center gap-1">
+                        <!-- Onaylandı -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-sm">check</span>
+                            </div>
+                            <span class="text-[10px] mt-1 text-text-muted-light dark:text-text-muted-dark">Onaylandı</span>
+                        </div>
+                        <div class="flex-1 h-1 ${order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}"></div>
+                        
+                        <!-- Hazırlanıyor -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full ${order.status === 'shipped' || order.status === 'delivered' ? 'bg-primary' : order.status === 'processing' ? 'bg-yellow-500' : 'bg-gray-300'} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-sm">${order.status === 'shipped' || order.status === 'delivered' ? 'check' : 'hourglass_top'}</span>
+                            </div>
+                            <span class="text-[10px] mt-1 text-text-muted-light dark:text-text-muted-dark">Hazırlanıyor</span>
+                        </div>
+                        <div class="flex-1 h-1 ${order.status === 'shipped' || order.status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}"></div>
+                        
+                        <!-- Kargoda -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full ${order.status === 'delivered' ? 'bg-primary' : order.status === 'shipped' ? 'bg-blue-500' : 'bg-gray-300'} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-sm">${order.status === 'delivered' ? 'check' : 'local_shipping'}</span>
+                            </div>
+                            <span class="text-[10px] mt-1 text-text-muted-light dark:text-text-muted-dark">Kargoda</span>
+                        </div>
+                        <div class="flex-1 h-1 ${order.status === 'delivered' ? 'bg-primary' : 'bg-gray-300'}"></div>
+                        
+                        <!-- Teslim Edildi -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full ${order.status === 'delivered' ? 'bg-green-500' : 'bg-gray-300'} flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-sm">${order.status === 'delivered' ? 'check' : 'home'}</span>
+                            </div>
+                            <span class="text-[10px] mt-1 text-text-muted-light dark:text-text-muted-dark">Teslim</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Items -->
+                <div class="mb-6">
+                    <h4 class="font-semibold mb-3 text-text-light dark:text-text-dark">Ürünler (${order.items.reduce((sum, item) => sum + item.quantity, 0)} adet)</h4>
+                    <div class="space-y-3">
+                        ${order.items.map(item => `
+                            <div class="flex items-center gap-3 bg-card-background-light dark:bg-card-background-dark p-3 rounded-lg cursor-pointer hover:bg-border-light dark:hover:bg-border-dark transition-colors" onclick="goToProduct('${item.id}', '${encodeURIComponent(item.name)}', '${item.price}', '${encodeURIComponent(item.image)}', '${item.category || ''}', '${encodeURIComponent(item.description || '')}', '${item.size}')">
+                                <div class="w-14 h-14 rounded-lg bg-cover bg-center shrink-0" style="background-image: url('${item.image}');"></div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-text-light dark:text-text-dark text-sm truncate hover:text-primary">${item.name}</p>
+                                    <p class="text-xs text-text-muted-light dark:text-text-muted-dark">${item.size} × ${item.quantity}</p>
+                                </div>
+                                <p class="font-semibold text-text-light dark:text-text-dark">₺${(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <!-- Delivery Address -->
+                <div class="mb-6">
+                    <h4 class="font-semibold mb-3 text-text-light dark:text-text-dark">Teslimat Adresi</h4>
+                    <div class="bg-card-background-light dark:bg-card-background-dark p-3 rounded-lg">
+                        <p class="font-medium text-text-light dark:text-text-dark">${order.address.firstName} ${order.address.lastName}</p>
+                        <p class="text-sm text-text-muted-light dark:text-text-muted-dark mt-1">${order.address.address}</p>
+                        <p class="text-sm text-text-muted-light dark:text-text-muted-dark">${order.address.district}, ${order.address.city}</p>
+                        <p class="text-sm text-text-muted-light dark:text-text-muted-dark mt-1">Tel: ${order.address.phone}</p>
+                    </div>
+                </div>
+                
+                <!-- Payment Info -->
+                <div class="mb-6">
+                    <h4 class="font-semibold mb-3 text-text-light dark:text-text-dark">Ödeme Bilgisi</h4>
+                    <div class="bg-card-background-light dark:bg-card-background-dark p-3 rounded-lg">
+                        <p class="text-text-light dark:text-text-dark">${order.paymentMethod}</p>
+                    </div>
+                </div>
+                
+                <!-- Price Summary -->
+                <div class="bg-card-background-light dark:bg-card-background-dark p-4 rounded-xl">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-text-muted-light dark:text-text-muted-dark">Ara Toplam</span>
+                        <span class="text-text-light dark:text-text-dark">₺${order.total.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-text-muted-light dark:text-text-muted-dark">Kargo</span>
+                        <span class="text-green-500">Ücretsiz</span>
+                    </div>
+                    <div class="border-t border-border-light dark:border-border-dark my-2"></div>
+                    <div class="flex justify-between">
+                        <span class="font-bold text-text-light dark:text-text-dark">Toplam</span>
+                        <span class="font-bold text-primary text-xl">₺${order.total.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close order detail
+        function closeOrderDetail() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Navigate to product
+        function goToProduct(id, name, price, image, category, description, size) {
+            closeOrderDetail();
+            window.location.href = `product-detail.html?id=${id}&name=${name}&price=${price}&image=${image}&category=${category}&description=${description}&size=${size}`;
+        }
+        
+        // Navigation
+        function goBack() {
+            window.location.href = 'user-profile.html';
+        }
+        
+        function startShopping() {
+            window.location.href = 'index.html';
+        }
+        
+        
+        // Initialize dark mode
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderOrders();
+        });
+    </script>
+</body>
+</html>

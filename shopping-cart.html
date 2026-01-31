@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#008080"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <title>Alışveriş Sepeti - Modern Shopping App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#008080",
+                        "primary-dark": "#006666",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101922",
+                        "card-background-light": "#F8F9FA",
+                        "card-background-dark": "#1a242d",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Touch improvements */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        /* Cart item animations */
+        .cart-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .cart-item.removing {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        /* Quantity button animations */
+        .quantity-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .quantity-btn:active {
+            transform: scale(0.9);
+        }
+        
+        /* Delete button animations */
+        .delete-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .delete-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .delete-btn:hover {
+            color: #ef4444;
+        }
+        
+        /* Header button animations */
+        .header-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .header-button:active {
+            transform: scale(0.9);
+        }
+        
+        /* Checkout button animations */
+        .checkout-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .checkout-btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* Safe area for mobile devices */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Empty cart animation */
+        .empty-cart-icon {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* Loading animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .dark .loading-shimmer {
+            background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark h-screen overflow-hidden">
+    <div class="relative flex h-full w-full flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <header class="shrink-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md safe-area-top">
+            <div class="flex items-center p-4 pb-2 justify-between">
+                <button class="header-button flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors" onclick="goBack()">
+                    <span class="material-symbols-outlined text-2xl text-text-light dark:text-text-dark">arrow_back</span>
+                </button>
+                
+                <h1 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Alışveriş Sepeti</h1>
+                
+                <div class="flex w-12 items-center justify-end">
+                    <button class="header-button flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-text-light dark:text-text-dark gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0 hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors" onclick="showCartOptions()">
+                        <span class="material-symbols-outlined text-2xl">more_vert</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cart Content - Scrollable -->
+        <main class="flex-1 overflow-y-auto px-4 pb-4" id="cartContent">
+            <!-- Cart Items -->
+            <div id="cartItems">
+                <!-- Cart items will be dynamically rendered here -->
+            </div>
+        </main>
+
+        <!-- Empty Cart State (Hidden by default) -->
+        <div id="emptyCart" class="hidden flex-1 flex flex-col bg-background-light dark:bg-background-dark items-center justify-center text-center p-4 mb-16">
+            <div class="flex flex-col items-center gap-6">
+                <span class="material-symbols-outlined text-8xl text-text-muted-light dark:text-text-muted-dark empty-cart-icon">shopping_cart</span>
+                <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Sepetiniz Boş</h2>
+                <p class="text-text-muted-light dark:text-text-muted-dark max-w-xs">Henüz sepete hiçbir ürün eklemediniz. Alışverişe başlayarak sepetinizi doldurun!</p>
+                <button class="checkout-btn flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-8 mt-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]" onclick="startShopping()">
+                    <span class="truncate">Alışverişe Başla</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Cart Summary - Fixed at bottom -->
+        <div id="cartSummary" class="shrink-0 bg-background-light dark:bg-background-dark p-4 border-t border-border-light dark:border-border-dark mb-16">
+            <div class="p-4 bg-card-background-light dark:bg-card-background-dark rounded-xl shadow-soft">
+                <div class="flex justify-between gap-x-6 py-2">
+                    <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Ara Toplam</p>
+                    <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right" id="subtotal">₺0.00</p>
+                </div>
+                <div id="savingsRow" class="hidden flex justify-between gap-x-6 py-2">
+                    <p class="text-green-500 text-base font-normal leading-normal">Kazancınız</p>
+                    <p class="text-green-500 text-base font-semibold leading-normal text-right" id="savings">-₺0.00</p>
+                </div>
+                <div class="flex justify-between gap-x-6 py-2">
+                    <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Kargo</p>
+                    <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right">Ücretsiz</p>
+                </div>
+                <div class="border-t border-border-light dark:border-border-dark my-2"></div>
+                <div class="flex justify-between gap-x-6 py-2">
+                    <p class="text-text-light dark:text-text-dark text-lg font-bold leading-normal">Toplam</p>
+                    <p class="text-primary text-lg font-bold leading-normal text-right" id="total">₺0.00</p>
+                </div>
+            </div>
+            <div class="flex pt-4 justify-center">
+                <button class="checkout-btn flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-5 flex-1 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]" onclick="proceedToCheckout()">
+                    <span class="truncate">Ödemeye Geç</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+            <div class="flex px-2 py-1">
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
+                    <span class="material-symbols-outlined text-2xl">home</span>
+                    <p class="text-xs font-medium">Ana Sayfa</p>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2 relative" href="shopping-cart.html">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+                    <p class="text-primary text-xs font-semibold">Sepet</p>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="user-profile.html">
+                    <span class="material-symbols-outlined text-2xl">person</span>
+                    <p class="text-xs font-medium">Profil</p>
+                </a>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Cart Options Modal -->
+    <div id="cartOptionsModal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-end">
+        <div class="bg-background-light dark:bg-background-dark rounded-t-2xl p-6 w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Sepet Seçenekleri</h3>
+                <button onclick="closeCartOptions()" class="text-text-muted-light dark:text-text-muted-dark">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <button class="w-full text-left p-3 rounded-lg hover:bg-card-background-light dark:hover:bg-card-background-dark text-text-light dark:text-text-dark" onclick="clearCart()">
+                    <span class="material-symbols-outlined mr-2">delete_sweep</span>
+                    Sepeti Temizle
+                </button>
+                <button class="w-full text-left p-3 rounded-lg hover:bg-card-background-light dark:hover:bg-card-background-dark text-text-light dark:text-text-dark" onclick="saveForLater()">
+                    <span class="material-symbols-outlined mr-2">bookmark</span>
+                    Daha Sonra İçin Kaydet
+                </button>
+                <button class="w-full text-left p-3 rounded-lg hover:bg-card-background-light dark:hover:bg-card-background-dark text-text-light dark:text-text-dark" onclick="shareCart()">
+                    <span class="material-symbols-outlined mr-2">share</span>
+                    Sepeti Paylaş
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Manager -->
+    <script src="cart-manager.js"></script>
+    
+    <!-- JavaScript for cart functionality -->
+    <script>
+        // Load cart items from localStorage
+        function loadCartItems() {
+            return cartManager.getCart();
+        }
+
+        // Render cart items
+        function renderCartItems() {
+            const cartItems = loadCartItems();
+            const cartItemsContainer = document.getElementById('cartItems');
+            const emptyCart = document.getElementById('emptyCart');
+            const cartSummary = document.getElementById('cartSummary');
+            const cartContent = document.getElementById('cartContent');
+
+            if (cartItems.length === 0) {
+                cartItemsContainer.innerHTML = '';
+                cartContent.classList.add('hidden');
+                emptyCart.classList.remove('hidden');
+                cartSummary.classList.add('hidden');
+                return;
+            }
+
+            cartContent.classList.remove('hidden');
+            emptyCart.classList.add('hidden');
+            cartSummary.classList.remove('hidden');
+
+            cartItemsContainer.innerHTML = cartItems.map(item => `
+                <div class="cart-item relative flex gap-4 bg-card-background-light dark:bg-card-background-dark p-4 mb-3 rounded-xl shadow-soft" data-cart-id="${item.cartId}" data-product-id="${item.id}" data-product-name="${item.name}" data-product-price="${item.price}" data-product-original-price="${item.originalPrice || ''}" data-product-image="${item.image}" data-product-category="${item.category || ''}" data-product-description="${item.description || ''}" data-product-size="${item.size || ''}">
+                    <!-- Delete button - top right -->
+                    <button class="delete-btn absolute top-2 right-2 p-1 text-text-muted-light dark:text-text-muted-dark hover:text-red-500 transition-colors">
+                        <span class="material-symbols-outlined text-xl">delete</span>
+                    </button>
+                    
+                    <!-- Product image - clickable -->
+                    <div class="product-link cursor-pointer bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-[70px] shrink-0" style='background-image: url("${item.image}");'></div>
+                    
+                    <!-- Product info -->
+                    <div class="flex flex-1 flex-col justify-center pr-6">
+                        <!-- Product name - clickable -->
+                        <p class="product-link cursor-pointer text-text-light dark:text-text-dark text-base font-semibold leading-normal hover:text-primary transition-colors">${item.name}</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-primary text-base font-bold leading-normal">₺${item.price.toFixed(2)}</p>
+                            ${item.originalPrice && item.originalPrice > item.price ? `<p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺${item.originalPrice.toFixed(2)}</p>` : ''}
+                        </div>
+                        <p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Beden: ${item.size}</p>
+                        
+                        <!-- Quantity controls -->
+                        <div class="flex items-center gap-2 mt-2 text-text-light dark:text-text-dark">
+                            <button class="quantity-btn minus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">-</button>
+                            <input class="quantity-input text-base font-medium leading-normal w-8 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" type="number" value="${item.quantity}" min="1" max="10"/>
+                            <button class="quantity-btn plus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateCartTotals();
+        }
+
+        // Update cart totals
+        function updateCartTotals() {
+            const cart = cartManager.getCart();
+            
+            // Calculate subtotal with original prices (before discount)
+            let subtotalOriginal = 0;
+            let totalSavings = 0;
+            
+            cart.forEach(item => {
+                if (item.originalPrice && item.originalPrice > item.price) {
+                    subtotalOriginal += item.originalPrice * item.quantity;
+                    totalSavings += (item.originalPrice - item.price) * item.quantity;
+                } else {
+                    subtotalOriginal += item.price * item.quantity;
+                }
+            });
+            
+            const total = cartManager.getCartTotal(); // Actual price to pay
+
+            document.getElementById('subtotal').textContent = `₺${subtotalOriginal.toFixed(2)}`;
+            document.getElementById('total').textContent = `₺${total.toFixed(2)}`;
+            
+            // Show savings if there are any discounts
+            const savingsRow = document.getElementById('savingsRow');
+            if (totalSavings > 0) {
+                document.getElementById('savings').textContent = `-₺${totalSavings.toFixed(2)}`;
+                savingsRow.classList.remove('hidden');
+            } else {
+                savingsRow.classList.add('hidden');
+            }
+        }
+
+        // Quantity management
+        function increaseQuantity(cartId) {
+            const cart = cartManager.getCart();
+            const item = cart.find(item => item.cartId == cartId);
+            if (item && item.quantity < 10) {
+                cartManager.updateQuantity(cartId, item.quantity + 1);
+                renderCartItems();
+            }
+        }
+
+        function decreaseQuantity(cartId) {
+            const cart = cartManager.getCart();
+            const item = cart.find(item => item.cartId == cartId);
+            if (item) {
+                if (item.quantity > 1) {
+                    cartManager.updateQuantity(cartId, item.quantity - 1);
+                    renderCartItems();
+                } else {
+                    // If quantity is 1, remove the item
+                    removeItem(cartId);
+                }
+            }
+        }
+
+        function updateQuantity(cartId, newQuantity) {
+            const quantity = parseInt(newQuantity);
+            if (quantity >= 1 && quantity <= 10) {
+                cartManager.updateQuantity(cartId, quantity);
+                renderCartItems();
+            } else {
+                // Reset to current quantity if invalid
+                const cart = cartManager.getCart();
+                const item = cart.find(item => item.cartId == cartId);
+                if (item) {
+                    document.querySelector(`[data-cart-id="${cartId}"] .quantity-input`).value = item.quantity;
+                }
+            }
+        }
+
+        // Remove item from cart
+        function removeItem(cartId) {
+            const itemElement = document.querySelector(`[data-cart-id="${cartId}"]`);
+            if (itemElement) {
+                itemElement.classList.add('removing');
+                setTimeout(() => {
+                    // Use cart manager to remove item
+                    cartManager.removeFromCart(cartId);
+                    renderCartItems();
+                }, 300);
+            }
+        }
+
+        // Navigation functions
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Cart options modal
+        function showCartOptions() {
+            document.getElementById('cartOptionsModal').classList.remove('hidden');
+        }
+
+        function closeCartOptions() {
+            document.getElementById('cartOptionsModal').classList.add('hidden');
+        }
+
+        // Cart options functions
+        function clearCart() {
+            cartManager.clearCart();
+            renderCartItems();
+            closeCartOptions();
+        }
+
+        function saveForLater() {
+            // Save cart items for later functionality
+            localStorage.setItem('savedCart', JSON.stringify(cartManager.getCart()));
+            closeCartOptions();
+            showSuccessMessage('Sepet daha sonra için kaydedildi!');
+        }
+
+        function shareCart() {
+            // Share cart functionality
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Alışveriş Sepetim',
+                    text: `${cartManager.getCartCount()} ürün içeren sepetimi görüntüle`,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const cartText = cartManager.getCart().map(item => `${item.name} - ₺${item.price}`).join('\n');
+                navigator.clipboard.writeText(`Alışveriş Sepetim:\n${cartText}`);
+                showSuccessMessage('Sepet bilgileri kopyalandı!');
+            }
+            closeCartOptions();
+        }
+
+        // Checkout function
+        function proceedToCheckout() {
+            if (cartManager.getCartCount() === 0) {
+                showErrorMessage('Sepetiniz boş!');
+                return;
+            }
+            
+            // Navigate to checkout page
+            window.location.href = 'checkout.html';
+        }
+
+        // Start shopping function
+        function startShopping() {
+            window.location.href = 'index.html';
+        }
+
+        // Success message
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-primary text-white px-6 py-3 rounded-lg shadow-lg';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Error message
+        function showErrorMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Dark mode functionality
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        // Initialize dark mode from localStorage
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Prevent zoom on double tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Close modal on backdrop click
+        document.getElementById('cartOptionsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCartOptions();
+            }
+        });
+
+        // Navigate to product detail
+        function goToProduct(cartItem) {
+            const productId = cartItem.dataset.productId;
+            const productName = encodeURIComponent(cartItem.dataset.productName);
+            const productPrice = cartItem.dataset.productPrice;
+            const productOriginalPrice = cartItem.dataset.productOriginalPrice || '';
+            const productImage = encodeURIComponent(cartItem.dataset.productImage);
+            const productCategory = cartItem.dataset.productCategory || '';
+            const productDescription = encodeURIComponent(cartItem.dataset.productDescription || '');
+            const productSize = cartItem.dataset.productSize || '';
+            
+            let url = `product-detail.html?id=${productId}&name=${productName}&price=${productPrice}&image=${productImage}&category=${productCategory}&description=${productDescription}&size=${productSize}`;
+            if (productOriginalPrice) {
+                url += `&originalPrice=${productOriginalPrice}`;
+            }
+            window.location.href = url;
+        }
+
+        // Event delegation for cart buttons
+        document.addEventListener('click', function(e) {
+            // Handle product link clicks (image or name)
+            if (e.target.classList.contains('product-link') || e.target.closest('.product-link')) {
+                const cartItem = e.target.closest('[data-cart-id]');
+                if (cartItem) {
+                    goToProduct(cartItem);
+                }
+                return;
+            }
+            
+            // Handle quantity buttons
+            if (e.target.classList.contains('quantity-btn')) {
+                const cartId = e.target.closest('[data-cart-id]').dataset.cartId;
+                if (e.target.classList.contains('plus-btn')) {
+                    increaseQuantity(cartId);
+                } else if (e.target.classList.contains('minus-btn')) {
+                    decreaseQuantity(cartId);
+                }
+            }
+            
+            // Handle delete button
+            if (e.target.closest('.delete-btn')) {
+                const cartId = e.target.closest('[data-cart-id]').dataset.cartId;
+                removeItem(cartId);
+            }
+        });
+
+        // Handle quantity input changes
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('quantity-input')) {
+                const cartId = e.target.closest('[data-cart-id]').dataset.cartId;
+                updateQuantity(cartId, e.target.value);
+            }
+        });
+
+        // Initialize cart display
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCartItems();
+        });
+    </script>
+</body>
+</html>

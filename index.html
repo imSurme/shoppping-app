@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#008080"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <title>Modern Shopping App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#008080",
+                        "primary-dark": "#006666",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101922",
+                        "card-background-light": "#F8F9FA",
+                        "card-background-dark": "#1a242d",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Touch improvements */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        /* Loading animation */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .dark .loading-shimmer {
+            background: linear-gradient(90deg, #374151 25%, #4B5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Product card hover effects */
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Category chip animations */
+        .category-chip {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .category-chip:active {
+            transform: scale(0.95);
+        }
+        
+        /* Search input focus */
+        .search-input:focus {
+            transform: scale(1.02);
+        }
+        
+        /* Bottom navigation */
+        .nav-item {
+            transition: none;
+        }
+        
+        /* Safe area for mobile devices */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Top App Bar with search -->
+        <header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md safe-area-top">
+            <div class="p-4 pb-2">
+                <div class="relative">
+                    <button id="searchBtn" class="absolute left-3 top-1/2 -translate-y-1/2 text-primary hover:text-primary-dark transition-colors cursor-pointer z-10">
+                        <span class="material-symbols-outlined text-xl">search</span>
+                    </button>
+                    <input 
+                        class="search-input w-full rounded-full border-none bg-card-background-light dark:bg-card-background-dark py-3 pl-12 pr-4 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary focus:outline-none transition-all duration-200 text-base" 
+                        placeholder="Ürün ara..." 
+                        type="text"
+                        autocomplete="off"
+                        id="searchInput"
+                    />
+                </div>
+            </div>
+        </header>
+
+        <!-- Category Chips -->
+        <section class="px-4 pb-2">
+            <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary px-6 py-3 shadow-soft" data-category="tumu">
+                    <p class="text-white text-sm font-semibold">Tümü</p>
+                </button>
+                <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-card-background-light dark:bg-card-background-dark px-6 py-3 shadow-soft hover:shadow-soft-dark" data-category="erkek">
+                    <span class="material-symbols-outlined text-text-light dark:text-text-dark text-lg">man</span>
+                    <p class="text-text-light dark:text-text-dark text-sm font-medium">Erkek</p>
+                </button>
+                <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-card-background-light dark:bg-card-background-dark px-6 py-3 shadow-soft hover:shadow-soft-dark" data-category="kadin">
+                    <span class="material-symbols-outlined text-text-light dark:text-text-dark text-lg">woman</span>
+                    <p class="text-text-light dark:text-text-dark text-sm font-medium">Kadın</p>
+                </button>
+                <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-card-background-light dark:bg-card-background-dark px-6 py-3 shadow-soft hover:shadow-soft-dark" data-category="cocuk">
+                    <span class="material-symbols-outlined text-text-light dark:text-text-dark text-lg">child_care</span>
+                    <p class="text-text-light dark:text-text-dark text-sm font-medium">Çocuk</p>
+                </button>
+                <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-card-background-light dark:bg-card-background-dark px-6 py-3 shadow-soft hover:shadow-soft-dark" data-category="ev">
+                    <span class="material-symbols-outlined text-text-light dark:text-text-dark text-lg">chair</span>
+                    <p class="text-text-light dark:text-text-dark text-sm font-medium">Ev</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- Product Grid -->
+        <main class="flex-grow px-4 pb-24">
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                
+                <!-- Product 1 -->
+                <article class="product-card group cursor-pointer" 
+                    data-id="1" 
+                    data-name="Minimalist Sandalye" 
+                    data-price="1800" 
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuA2RqPWbNcMBcbXG0BfRqJ9w9Bgvmhawn6zSdcqHsh2-zn5T0GjVe_hCShY2NT7CMtu4DJSyZICLRM1HZAeACkwpI40Th11jnFJEUlrS9zOta6vH09ZYNIhq7UL0QkXak8om4025fzBZNeLo6XYKQ0xfCMHEgly4pxL7-PwU4m8hisGy0_wdbjaNZ8-AvFtfl71HJf2tuOZKp5x5Y6Iw4sW-0IjbnYkkgL4fbQAdFj926LjMFa6w5yyFEo4llyYoGh4pgYleAkLrqQ"
+                    data-category="ev"
+                    data-description="Modern ve minimalist tasarıma sahip, ergonomik yapısıyla konforu ön planda tutan şık sandalye. Doğal ahşap ve metal detaylarıyla her ortama uyum sağlar.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA2RqPWbNcMBcbXG0BfRqJ9w9Bgvmhawn6zSdcqHsh2-zn5T0GjVe_hCShY2NT7CMtu4DJSyZICLRM1HZAeACkwpI40Th11jnFJEUlrS9zOta6vH09ZYNIhq7UL0QkXak8om4025fzBZNeLo6XYKQ0xfCMHEgly4pxL7-PwU4m8hisGy0_wdbjaNZ8-AvFtfl71HJf2tuOZKp5x5Y6Iw4sW-0IjbnYkkgL4fbQAdFj926LjMFa6w5yyFEo4llyYoGh4pgYleAkLrqQ");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Minimalist Sandalye</h3>
+                        <p class="text-primary text-base font-bold">₺1.800</p>
+                    </div>
+                </article>
+
+                <!-- Product 2 -->
+                <article class="product-card group cursor-pointer"
+                    data-id="2" 
+                    data-name="Bej Deri Çanta" 
+                    data-price="1760" 
+                    data-original-price="2200"
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuDO4XsLp4M-IOY6tPWycGOfHIHu7_q0kZi-a5ue_DKu2X7HcYwC7LPqwzMenx9hH7t03eUgT6gi8nygd9Nvwq8NYlWAeq8gRSU9L1_fpWGsM5qOwa-baCPAbhbZvjFGLw6Z-1DFuZra_SVgobrXep93KBVdNsZ8vstnKFbSbM43VRN_TphLRh5BAWpPavnjcZWmCR3NJ6fFvNamVkN5XOsncQb8mUCRhI_wzTiZaNTgi5IMC1r84OEl6EmW6iZcIJqUeMlcw-FGNEo"
+                    data-category="kadin"
+                    data-description="Premium kalite deri ile üretilmiş, günlük kullanıma uygun şık çanta. Geniş iç hacmi ve çoklu cep tasarımı ile pratik kullanım sunar.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">%20</span>
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDO4XsLp4M-IOY6tPWycGOfHIHu7_q0kZi-a5ue_DKu2X7HcYwC7LPqwzMenx9hH7t03eUgT6gi8nygd9Nvwq8NYlWAeq8gRSU9L1_fpWGsM5qOwa-baCPAbhbZvjFGLw6Z-1DFuZra_SVgobrXep93KBVdNsZ8vstnKFbSbM43VRN_TphLRh5BAWpPavnjcZWmCR3NJ6fFvNamVkN5XOsncQb8mUCRhI_wzTiZaNTgi5IMC1r84OEl6EmW6iZcIJqUeMlcw-FGNEo");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Bej Deri Çanta</h3>
+                        <div class="flex items-center gap-2">
+                            <p class="text-primary text-base font-bold">₺1.760</p>
+                            <p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺2.200</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Product 3 -->
+                <article class="product-card group cursor-pointer"
+                    data-id="3" 
+                    data-name="Seramik Vazo Seti" 
+                    data-price="950" 
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuAyn7u4vB5h-5hbJzGJoBkUsqtXlnuR8aaNi-BEGDtZjNBovvO4HA34R9uGro-rPmdq15rYv17bqQKd9F3qu3R_bmdWAjRMr29qAOTeqwzfVY0z0nLhS4fieYoD1J-d4PvANFC1bQMD-7jR4vYEgW2vQ7fTYfJwk2CZySd9MbpSF4ph1_TMhIJd1uPq_CGmff2YSm5mbe2wXLguotEv4fGHmVXaL0auQM8cDUCg3V46ZaTzXDSbkjnQp0Gvij0cKsdJlwdxelw0T34"
+                    data-category="ev"
+                    data-description="El yapımı seramik vazo seti, ev dekorasyonunuza doğal ve sanatsal bir dokunuş katar. Farklı boyutlarda 3 parçadan oluşur.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAyn7u4vB5h-5hbJzGJoBkUsqtXlnuR8aaNi-BEGDtZjNBovvO4HA34R9uGro-rPmdq15rYv17bqQKd9F3qu3R_bmdWAjRMr29qAOTeqwzfVY0z0nLhS4fieYoD1J-d4PvANFC1bQMD-7jR4vYEgW2vQ7fTYfJwk2CZySd9MbpSF4ph1_TMhIJd1uPq_CGmff2YSm5mbe2wXLguotEv4fGHmVXaL0auQM8cDUCg3V46ZaTzXDSbkjnQp0Gvij0cKsdJlwdxelw0T34");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Seramik Vazo Seti</h3>
+                        <p class="text-primary text-base font-bold">₺950</p>
+                    </div>
+                </article>
+
+                <!-- Product 4 -->
+                <article class="product-card group cursor-pointer"
+                    data-id="4" 
+                    data-name="Klasik Beyaz Spor Ayakkabı" 
+                    data-price="1040" 
+                    data-original-price="1300"
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuA4GoF1L2wqXpqrbtnXBLwlCjUot60kSl-fI7pFlGQ26BYlFLKf-5qsHw6TPme2e3njDuTNPa0zd2EJZdRpuX9zXD9-i8vFyY2jA9eqUGOATu26apnEocLZODIFENIn0S18X-w5Coza3vjQvDrSfjgyvFW-PRR5gZawhXwPmV3SQif-Pt6AZTtWJb_LkYliERx-0oQDstJTexFJ31TXbdVvY-CNzmGGs4RyzBKRTWW_G_kpkwFOqL2jqA8JkzcMsVj5brC0_jLyxro"
+                    data-category="erkek"
+                    data-description="Her kombine uyum sağlayan klasik beyaz spor ayakkabı. Hafif ve esnek tabanı ile gün boyu konfor sağlar. 38-44 numara arası mevcuttur.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">%20</span>
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4GoF1L2wqXpqrbtnXBLwlCjUot60kSl-fI7pFlGQ26BYlFLKf-5qsHw6TPme2e3njDuTNPa0zd2EJZdRpuX9zXD9-i8vFyY2jA9eqUGOATu26apnEocLZODIFENIn0S18X-w5Coza3vjQvDrSfjgyvFW-PRR5gZawhXwPmV3SQif-Pt6AZTtWJb_LkYliERx-0oQDstJTexFJ31TXbdVvY-CNzmGGs4RyzBKRTWW_G_kpkwFOqL2jqA8JkzcMsVj5brC0_jLyxro");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Klasik Beyaz Spor Ayakkabı</h3>
+                        <div class="flex items-center gap-2">
+                            <p class="text-primary text-base font-bold">₺1.040</p>
+                            <p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺1.300</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Product 5 -->
+                <article class="product-card group cursor-pointer"
+                    data-id="5" 
+                    data-name="Pirinç Masa Lambası" 
+                    data-price="1500" 
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuD6JCMQCJHoXQd2fE7mDya4r-14Y4t7SUnFKJyNYuDE1-wyy1PM7em3X4NHK0J3A-lXv8TJ1oFm48doyaNZ_Qx0m0kvFF1qwRDbsaXLvljvDyIVvG0l8E-nIq1nOv4URFN_7zZS4T2PkJQHczyUPV-3DNHR04bgvy48ChzUjdBIHScDGDnT1QAdaf2R28jPM8IsCHDpp9evOJ9A7lS9LIhhmELd0qG8iesCMcdWyJlKeLgDKfSBAJf0XPpQT6B2VTJOMWBGljfiJ5U"
+                    data-category="ev"
+                    data-description="Vintage pirinç görünümlü masa lambası, yatak odası veya oturma odası için ideal. Ayarlanabilir parlaklık özelliği ile göz yormayan ışık sağlar.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD6JCMQCJHoXQd2fE7mDya4r-14Y4t7SUnFKJyNYuDE1-wyy1PM7em3X4NHK0J3A-lXv8TJ1oFm48doyaNZ_Qx0m0kvFF1qwRDbsaXLvljvDyIVvG0l8E-nIq1nOv4URFN_7zZS4T2PkJQHczyUPV-3DNHR04bgvy48ChzUjdBIHScDGDnT1QAdaf2R28jPM8IsCHDpp9evOJ9A7lS9LIhhmELd0qG8iesCMcdWyJlKeLgDKfSBAJf0XPpQT6B2VTJOMWBGljfiJ5U");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Pirinç Masa Lambası</h3>
+                        <p class="text-primary text-base font-bold">₺1.500</p>
+                    </div>
+                </article>
+
+                <!-- Product 6 -->
+                <article class="product-card group cursor-pointer"
+                    data-id="6" 
+                    data-name="Oversize Denim Ceket" 
+                    data-price="770" 
+                    data-original-price="1100"
+                    data-image="https://lh3.googleusercontent.com/aida-public/AB6AXuDcx0BKcIrhPsGiZ5HDdBO8KjpkEUNm4xE5n9QJ0s4C4lMwg4Lik76MJpGyW6uh-np1K_8kcRVxaaYMEeC2QDKNHLztD7o5A84xxini6MJWdqyKYvjB5r-bwVlVUsU3e3uqKkO4VhPSB7Hf5NydM7ARqWnE3UQG1gwGyIzMS08ugH5p3_VWoEd7xWh2lnz_imRpg-ulzopnH-Z0goZUSkvkr0Kf1OSMCYNixxzR3gHNgNPQMFxCdSwa9UU3y-A15G8aVu6vozzQOHc"
+                    data-category="kadin"
+                    data-description="Trend oversize kesimli denim ceket, casual kombinlerin vazgeçilmezi. %100 pamuklu kumaşı ile dört mevsim kullanılabilir. S-XL bedenlerde mevcuttur.">
+                    <div class="relative overflow-hidden rounded-xl bg-card-background-light dark:bg-card-background-dark aspect-[3/4] mb-3 shadow-soft">
+                        <span class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">%30</span>
+                        <div 
+                            class="w-full h-full bg-center bg-no-repeat bg-cover transition-transform duration-300 group-hover:scale-105" 
+                            style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDcx0BKcIrhPsGiZ5HDdBO8KjpkEUNm4xE5n9QJ0s4C4lMwg4Lik76MJpGyW6uh-np1K_8kcRVxaaYMEeC2QDKNHLztD7o5A84xxini6MJWdqyKYvjB5r-bwVlVUsU3e3uqKkO4VhPSB7Hf5NydM7ARqWnE3UQG1gwGyIzMS08ugH5p3_VWoEd7xWh2lnz_imRpg-ulzopnH-Z0goZUSkvkr0Kf1OSMCYNixxzR3gHNgNPQMFxCdSwa9UU3y-A15G8aVu6vozzQOHc");'
+                        ></div>
+                    </div>
+                    <div>
+                        <h3 class="text-text-light dark:text-text-dark text-sm font-semibold leading-tight mb-1">Oversize Denim Ceket</h3>
+                        <div class="flex items-center gap-2">
+                            <p class="text-primary text-base font-bold">₺770</p>
+                            <p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺1.100</p>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+            <div class="flex px-2 py-1">
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2" href="index.html">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">home</span>
+                    <p class="text-primary text-xs font-semibold">Ana Sayfa</p>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2 relative" href="shopping-cart.html">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    <p class="text-xs font-medium">Sepet</p>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="user-profile.html">
+                    <span class="material-symbols-outlined text-2xl">person</span>
+                    <p class="text-xs font-medium">Profil</p>
+                </a>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Cart Manager -->
+    <script src="cart-manager.js"></script>
+    
+    <!-- JavaScript for enhanced interactions -->
+    <script>
+        // Dark mode toggle functionality
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        // Initialize dark mode from localStorage
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Current filter state
+        let currentCategory = 'tumu';
+        let currentSearchTerm = '';
+
+        // Filter products function
+        function filterProducts() {
+            const productCards = document.querySelectorAll('.product-card');
+            
+            productCards.forEach(card => {
+                const productName = card.dataset.name.toLowerCase();
+                const productCategory = card.dataset.category;
+                
+                // Check search match
+                const matchesSearch = currentSearchTerm === '' || productName.includes(currentSearchTerm);
+                
+                // Check category match
+                const matchesCategory = currentCategory === 'tumu' || productCategory === currentCategory;
+                
+                // Show or hide product
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        searchInput.addEventListener('input', function(e) {
+            currentSearchTerm = e.target.value.toLowerCase();
+            filterProducts();
+        });
+        
+        // Search button click
+        searchBtn.addEventListener('click', function() {
+            currentSearchTerm = searchInput.value.toLowerCase();
+            filterProducts();
+            searchInput.focus();
+        });
+        
+        // Enter key to search
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                currentSearchTerm = this.value.toLowerCase();
+                filterProducts();
+            }
+        });
+
+        // Category filter functionality
+        const categoryChips = document.querySelectorAll('.category-chip');
+        categoryChips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Remove active class from all chips
+                categoryChips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-white');
+                    c.classList.add('bg-card-background-light', 'dark:bg-card-background-dark', 'text-text-light', 'dark:text-text-dark');
+                    // Reset text color for p element
+                    const pElement = c.querySelector('p');
+                    if (pElement) {
+                        pElement.classList.remove('text-white');
+                        pElement.classList.add('text-text-light', 'dark:text-text-dark');
+                    }
+                });
+                
+                // Add active class to clicked chip
+                this.classList.add('bg-primary', 'text-white');
+                this.classList.remove('bg-card-background-light', 'dark:bg-card-background-dark', 'text-text-light', 'dark:text-text-dark');
+                // Set text color for p element
+                const pElement = this.querySelector('p');
+                if (pElement) {
+                    pElement.classList.add('text-white');
+                    pElement.classList.remove('text-text-light', 'dark:text-text-dark');
+                }
+                
+                // Update current category and filter
+                currentCategory = this.dataset.category;
+                filterProducts();
+            });
+        });
+
+        // Product card interactions
+        const productCards = document.querySelectorAll('.product-card');
+        productCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                
+                // Get product data from card
+                const productId = this.dataset.id;
+                const productName = encodeURIComponent(this.dataset.name);
+                const productPrice = this.dataset.price;
+                const productOriginalPrice = this.dataset.originalPrice || '';
+                const productImage = encodeURIComponent(this.dataset.image);
+                const productCategory = this.dataset.category;
+                const productDescription = encodeURIComponent(this.dataset.description);
+                
+                // Navigate to product detail page with parameters
+                window.location.href = `product-detail.html?id=${productId}&name=${productName}&price=${productPrice}&originalPrice=${productOriginalPrice}&image=${productImage}&category=${productCategory}&description=${productDescription}`;
+            });
+        });
+
+
+        // Smooth scroll for better mobile experience
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Prevent zoom on double tap for iOS
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Add loading states for images
+        const productImages = document.querySelectorAll('[style*="background-image"]');
+        productImages.forEach(img => {
+            img.addEventListener('load', function() {
+                this.classList.remove('loading-shimmer');
+            });
+        });
+    </script>
+</body>
+</html>
