@@ -218,7 +218,14 @@
             <section id="addressSection" class="mb-6">
                 <h2 class="text-lg font-bold mb-4 text-text-light dark:text-text-dark">Teslimat Adresi</h2>
                 
-                <div class="bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft">
+                <!-- Kayıtlı Adresler -->
+                <div id="savedAddressesList" class="space-y-3 mb-4">
+                    <!-- Profildeki kayıtlı adresler buraya yüklenecek -->
+                </div>
+                
+                <!-- Manuel adres formu (yeni adres veya kayıtlı yoksa) -->
+                <div id="addressFormContainer" class="bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft">
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark mb-3" id="addressFormLabel">Veya yeni adres girin</p>
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -260,24 +267,27 @@
                 <h2 class="text-lg font-bold mb-4 text-text-light dark:text-text-dark">Ödeme Yöntemi</h2>
                 
                 <div class="space-y-3">
-                    <!-- Credit Card -->
-                    <div class="payment-method selected cursor-pointer bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft border-2 border-primary" data-method="card" onclick="selectPaymentMethod('card')">
+                    <!-- Kayıtlı Kartlar (profildeki) -->
+                    <div id="savedCardsList" class="space-y-3">
+                        <!-- Profildeki kayıtlı kartlar buraya yüklenecek -->
+                    </div>
+                    
+                    <!-- Yeni kart ile öde (açılır form) -->
+                    <div id="newCardOption" class="payment-method cursor-pointer bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft border-2 border-transparent" data-method="card-new" onclick="selectPaymentMethod('card-new')">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-primary text-2xl">credit_card</span>
+                                <span class="material-symbols-outlined text-primary text-2xl">add_card</span>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-text-light dark:text-text-dark">Kredi / Banka Kartı</p>
-                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark">Visa, Mastercard, Troy</p>
+                                <p class="font-semibold text-text-light dark:text-text-dark">Yeni kart bilgisi gir</p>
+                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark">Kart numarası, son kullanma, CVV</p>
                             </div>
-                            <div class="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center">
-                                <div class="w-3 h-3 rounded-full bg-primary"></div>
-                            </div>
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center"></div>
                         </div>
                     </div>
                     
-                    <!-- Card Details (shown when credit card selected) -->
-                    <div id="cardDetails" class="bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft">
+                    <!-- Card Details (shown when "yeni kart" selected) -->
+                    <div id="cardDetails" class="bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft hidden">
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Kart Numarası</label>
@@ -405,7 +415,7 @@
         </main>
 
         <!-- Bottom Action Bar -->
-        <div id="actionBar" class="fixed bottom-0 left-0 right-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 border-t border-border-light dark:border-border-dark safe-area-bottom">
+        <div id="actionBar" class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 border-t border-border-light dark:border-border-dark safe-area-bottom">
             <div class="flex gap-3">
                 <button id="backBtn" class="hidden flex-1 py-4 px-6 rounded-xl border-2 border-border-light dark:border-border-dark text-text-light dark:text-text-dark font-bold" onclick="previousStep()">
                     Geri
@@ -424,7 +434,124 @@
     <!-- JavaScript -->
     <script>
         let currentStep = 1;
-        let selectedPayment = 'card';
+        let selectedPayment = 'card'; // 'card', 'card-new', 'cash', 'transfer'
+        let selectedPaymentCardId = null; // kayıtlı kart id (selectedPayment === 'card' ise)
+        let selectedAddressId = null;   // kayıtlı adres id (null = manuel form kullanılıyor)
+        let savedAddresses = [];
+        let savedPaymentMethods = [];
+        
+        // Kayıtlı adresleri yükle ve listele
+        function loadSavedAddresses() {
+            const saved = localStorage.getItem('savedAddresses');
+            savedAddresses = saved ? JSON.parse(saved) : [];
+            const container = document.getElementById('savedAddressesList');
+            container.innerHTML = '';
+            
+            if (savedAddresses.length === 0) {
+                document.getElementById('addressFormLabel').textContent = 'Teslimat adresinizi girin';
+                return;
+            }
+            
+            document.getElementById('addressFormLabel').textContent = 'Veya yeni adres girin';
+            
+            savedAddresses.forEach(addr => {
+                const isDefault = addr.isDefault;
+                const card = document.createElement('div');
+                card.className = `address-option cursor-pointer bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft border-2 ${selectedAddressId === addr.id ? 'border-primary' : 'border-transparent'}`;
+                card.dataset.addressId = addr.id;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-primary text-xl">${addr.title === 'Ev' ? 'home' : addr.title === 'İş' ? 'work' : 'location_on'}</span>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="font-semibold text-text-light dark:text-text-dark">${addr.title}</p>
+                                    ${isDefault ? '<span class="bg-primary text-white text-xs px-2 py-0.5 rounded-full">Varsayılan</span>' : ''}
+                                </div>
+                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark truncate">${addr.fullName} · ${addr.phone}</p>
+                                <p class="text-sm text-text-muted-light dark:text-text-muted-dark">${addr.fullAddress}, ${addr.district}, ${addr.city}</p>
+                            </div>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedAddressId === addr.id ? 'border-primary' : 'border-gray-300 dark:border-gray-600'}">
+                            ${selectedAddressId === addr.id ? '<div class="w-3 h-3 rounded-full bg-primary"></div>' : ''}
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => selectAddress(addr.id));
+                container.appendChild(card);
+            });
+            
+            // Başlangıçta hiçbir adres seçili değil - form boş kalır
+            // Kullanıcı bir adres seçerse o zaman form dolar
+        }
+        
+        function selectAddress(addressId) {
+            selectedAddressId = addressId;
+            const addr = savedAddresses.find(a => a.id === addressId);
+            if (addr) {
+                document.getElementById('firstName').value = addr.fullName.split(' ')[0] || '';
+                document.getElementById('lastName').value = addr.fullName.split(' ').slice(1).join(' ') || '';
+                document.getElementById('phone').value = addr.phone || '';
+                document.getElementById('address').value = addr.fullAddress || '';
+                document.getElementById('city').value = addr.city || '';
+                document.getElementById('district').value = addr.district || '';
+            }
+            loadSavedAddresses(); // seçili görünümü güncelle
+        }
+        
+        // Kayıtlı kartları yükle ve listele
+        function loadSavedPaymentMethods() {
+            const saved = localStorage.getItem('paymentMethods');
+            savedPaymentMethods = saved ? JSON.parse(saved) : [];
+            const container = document.getElementById('savedCardsList');
+            container.innerHTML = '';
+            
+            if (savedPaymentMethods.length === 0) {
+                const newOpt = document.getElementById('newCardOption');
+                newOpt.classList.remove('hidden');
+                newOpt.classList.add('border-primary', 'selected');
+                const dot = newOpt.querySelector('.w-6');
+                if (dot) {
+                    dot.innerHTML = '<div class="w-3 h-3 rounded-full bg-primary"></div>';
+                    dot.classList.add('border-primary');
+                    dot.classList.remove('border-gray-300', 'dark:border-gray-600');
+                }
+                document.getElementById('cardDetails').classList.remove('hidden');
+                selectedPayment = 'card-new';
+                return;
+            }
+            
+            document.getElementById('newCardOption').classList.remove('hidden');
+            
+            savedPaymentMethods.forEach(pm => {
+                const card = document.createElement('div');
+                const isSelected = selectedPayment === 'card' && selectedPaymentCardId === pm.id;
+                card.className = `payment-method cursor-pointer bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft border-2 ${isSelected ? 'border-primary selected' : 'border-transparent'}`;
+                card.dataset.method = 'card';
+                card.dataset.cardId = pm.id;
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-xl">💳</div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-text-light dark:text-text-dark">${pm.cardName}</p>
+                            <p class="text-sm text-text-muted-light dark:text-text-muted-dark">**** **** **** ${typeof pm.cardNumber === 'string' ? pm.cardNumber.slice(-4) : ''}</p>
+                        </div>
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-primary' : 'border-gray-300 dark:border-gray-600'}">
+                            ${isSelected ? '<div class="w-3 h-3 rounded-full bg-primary"></div>' : ''}
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => selectPaymentMethod('card', pm.id));
+                container.appendChild(card);
+            });
+            
+            const defaultCard = savedPaymentMethods.find(p => p.isDefault) || savedPaymentMethods[0];
+            if (defaultCard && selectedPayment === 'card' && !selectedPaymentCardId) {
+                selectPaymentMethod('card', defaultCard.id);
+            }
+        }
         
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -435,6 +562,8 @@
                 return;
             }
             
+            loadSavedAddresses();
+            loadSavedPaymentMethods();
             updateStepUI();
             
             // Format card number input
@@ -541,6 +670,13 @@
         
         function validatePayment() {
             if (selectedPayment === 'card') {
+                if (!selectedPaymentCardId) {
+                    showError('Lütfen bir ödeme kartı seçin.');
+                    return false;
+                }
+                return true;
+            }
+            if (selectedPayment === 'card-new') {
                 const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
                 const cardName = document.getElementById('cardName').value.trim();
                 const cardExpiry = document.getElementById('cardExpiry').value.trim();
@@ -566,29 +702,53 @@
             return true;
         }
         
-        // Payment method selection
-        function selectPaymentMethod(method) {
+        // Payment method selection (method: 'card', 'card-new', 'cash', 'transfer'; cardId: kayıtlı kart id)
+        function selectPaymentMethod(method, cardId) {
             selectedPayment = method;
+            selectedPaymentCardId = method === 'card' ? (cardId || selectedPaymentCardId) : null;
             
-            // Update UI
+            // Tüm ödeme seçeneklerindeki radio görünümünü sıfırla
             document.querySelectorAll('.payment-method').forEach(el => {
-                el.classList.remove('selected');
-                el.classList.remove('border-primary');
+                el.classList.remove('selected', 'border-primary');
                 el.classList.add('border-transparent');
-                el.querySelector('.w-6').innerHTML = '';
-                el.querySelector('.w-6').classList.remove('border-primary');
-                el.querySelector('.w-6').classList.add('border-gray-300', 'dark:border-gray-600');
+                const dot = el.querySelector('.w-6');
+                if (dot) {
+                    dot.innerHTML = '';
+                    dot.classList.remove('border-primary');
+                    dot.classList.add('border-gray-300', 'dark:border-gray-600');
+                }
             });
             
-            const selected = document.querySelector(`[data-method="${method}"]`);
-            selected.classList.add('selected', 'border-primary');
-            selected.classList.remove('border-transparent');
-            selected.querySelector('.w-6').innerHTML = '<div class="w-3 h-3 rounded-full bg-primary"></div>';
-            selected.querySelector('.w-6').classList.add('border-primary');
-            selected.querySelector('.w-6').classList.remove('border-gray-300', 'dark:border-gray-600');
+            // Kayıtlı kartlardan seçili olanı işaretle
+            document.querySelectorAll('#savedCardsList .payment-method').forEach(el => {
+                if (el.dataset.cardId && parseInt(el.dataset.cardId) === selectedPaymentCardId) {
+                    el.classList.add('selected', 'border-primary');
+                    el.classList.remove('border-transparent');
+                    const dot = el.querySelector('.w-6');
+                    if (dot) {
+                        dot.innerHTML = '<div class="w-3 h-3 rounded-full bg-primary"></div>';
+                        dot.classList.add('border-primary');
+                        dot.classList.remove('border-gray-300', 'dark:border-gray-600');
+                    }
+                }
+            });
             
-            // Show/hide card details
-            document.getElementById('cardDetails').classList.toggle('hidden', method !== 'card');
+            // "Yeni kart" veya cash/transfer seçeneğini işaretle
+            const selector = method === 'card-new' ? '[data-method="card-new"]' : `[data-method="${method}"]`;
+            const selected = document.querySelector(selector);
+            if (selected) {
+                selected.classList.add('selected', 'border-primary');
+                selected.classList.remove('border-transparent');
+                const dot = selected.querySelector('.w-6');
+                if (dot) {
+                    dot.innerHTML = '<div class="w-3 h-3 rounded-full bg-primary"></div>';
+                    dot.classList.add('border-primary');
+                    dot.classList.remove('border-gray-300', 'dark:border-gray-600');
+                }
+            }
+            
+            // Kart detay formunu sadece "yeni kart" seçiliyse göster
+            document.getElementById('cardDetails').classList.toggle('hidden', method !== 'card-new');
         }
         
         // Render order summary
@@ -626,12 +786,17 @@
             `;
             
             // Payment summary
-            const paymentNames = {
-                'card': 'Kredi / Banka Kartı',
-                'cash': 'Kapıda Ödeme',
-                'transfer': 'Havale / EFT'
-            };
-            document.getElementById('summaryPayment').textContent = paymentNames[selectedPayment];
+            let paymentSummaryText = '';
+            if (selectedPayment === 'card' && selectedPaymentCardId) {
+                const pm = savedPaymentMethods.find(p => p.id === selectedPaymentCardId);
+                paymentSummaryText = pm ? `Kart **** ${typeof pm.cardNumber === 'string' ? pm.cardNumber.slice(-4) : ''} (${pm.cardName})` : 'Kredi / Banka Kartı';
+            } else if (selectedPayment === 'card-new') {
+                paymentSummaryText = 'Kredi / Banka Kartı (Yeni kart)';
+            } else {
+                const paymentNames = { 'cash': 'Kapıda Ödeme', 'transfer': 'Havale / EFT' };
+                paymentSummaryText = paymentNames[selectedPayment] || '';
+            }
+            document.getElementById('summaryPayment').textContent = paymentSummaryText;
             
             // Calculate totals with discount
             let subtotalOriginal = 0;
@@ -699,10 +864,23 @@
                 'transfer': 'Havale / EFT'
             };
             
+            let paymentMethodText = '';
+            if (selectedPayment === 'card' && selectedPaymentCardId) {
+                const pm = savedPaymentMethods.find(p => p.id === selectedPaymentCardId);
+                paymentMethodText = pm ? `Kart **** ${typeof pm.cardNumber === 'string' ? pm.cardNumber.slice(-4) : ''}` : 'Kredi / Banka Kartı';
+            } else {
+                const paymentNames = {
+                    'card-new': 'Kredi / Banka Kartı',
+                    'cash': 'Kapıda Ödeme',
+                    'transfer': 'Havale / EFT'
+                };
+                paymentMethodText = paymentNames[selectedPayment] || 'Kredi / Banka Kartı';
+            }
+            
             const order = {
                 orderNumber: orderNumber,
                 date: new Date().toISOString(),
-                status: 'processing', // processing, shipped, delivered
+                status: 'processing',
                 items: cart,
                 total: total,
                 address: {
@@ -713,7 +891,7 @@
                     city: document.getElementById('city').value,
                     district: document.getElementById('district').value
                 },
-                paymentMethod: paymentNames[selectedPayment]
+                paymentMethod: paymentMethodText
             };
             
             // Get existing orders or create empty array

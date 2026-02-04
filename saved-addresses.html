@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#008080"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <title>Kayıtlı Adresler - Modern Shopping App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#008080",
+                        "primary-dark": "#006666",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101922",
+                        "card-background-light": "#F8F9FA",
+                        "card-background-dark": "#1a242d",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        .header-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .header-button:active {
+            transform: scale(0.9);
+        }
+        
+        .address-card {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .address-card:active {
+            transform: scale(0.98);
+        }
+        
+        .address-card.selected {
+            border-color: #008080;
+            border-width: 2px;
+            background-color: rgba(0, 128, 128, 0.05);
+        }
+        
+        .add-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .add-button:active {
+            transform: scale(0.98);
+        }
+        
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+        
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Modal animations */
+        @keyframes slide-up {
+            from { 
+                transform: translateY(100%); 
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slide-down {
+            from { 
+                transform: translateY(0); 
+                opacity: 1;
+            }
+            to { 
+                transform: translateY(100%); 
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animate-slide-up {
+            animation: slide-up 0.3s ease-out forwards;
+        }
+        
+        .animate-slide-down {
+            animation: slide-down 0.3s ease-out forwards;
+        }
+        
+        .modal-backdrop {
+            animation: fade-in 0.3s ease-out;
+        }
+        
+        /* Boş durum animasyonu (sepet ile aynı) */
+        .empty-state-icon {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* Modal content initial state */
+        #addAddressModal .absolute.bottom-0 {
+            transform: translateY(100%);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md safe-area-top">
+            <div class="flex items-center p-4 pb-2 justify-between">
+                <button class="header-button flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors" onclick="goBack()">
+                    <span class="material-symbols-outlined text-2xl text-text-light dark:text-text-dark">arrow_back</span>
+                </button>
+                
+                <h1 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Kayıtlı Adresler</h1>
+                
+                <div class="w-12"></div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-grow flex flex-col p-4 pb-24 min-h-0">
+            <!-- Liste ve buton (adres varken görünür) -->
+            <div id="addressesContent" class="flex flex-col gap-4">
+                <div id="addressesList" class="flex flex-col gap-4 mb-4">
+                    <!-- Address cards will be dynamically inserted here -->
+                </div>
+                <button 
+                    onclick="openAddAddressModal()"
+                    class="add-button w-full bg-primary text-white py-4 rounded-xl font-semibold text-base shadow-soft hover:bg-primary-dark flex items-center justify-center gap-2"
+                >
+                    <span class="material-symbols-outlined">add</span>
+                    Yeni Adres Ekle
+                </button>
+            </div>
+
+            <!-- Boş durum (sepet gibi ortada, animasyonlu) -->
+            <div id="emptyAddressesState" class="hidden flex-1 flex flex-col bg-background-light dark:bg-background-dark items-center justify-center text-center p-4">
+                <div class="flex flex-col items-center gap-6">
+                    <span class="material-symbols-outlined text-8xl text-text-muted-light dark:text-text-muted-dark empty-state-icon">location_off</span>
+                    <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Henüz Kayıtlı Adresiniz Yok</h2>
+                    <p class="text-text-muted-light dark:text-text-muted-dark max-w-xs">Teslimat için adres ekleyerek alışverişe devam edebilirsiniz.</p>
+                    <button class="add-button flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-12 px-8 mt-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]" onclick="openAddAddressModal()">
+                        <span class="truncate">Yeni Adres Ekle</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark">
+            <div class="flex px-2 py-1">
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
+                    <span class="material-symbols-outlined text-2xl">home</span>
+                    <p class="text-xs font-medium">Ana Sayfa</p>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2 relative" href="shopping-cart.html">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    <p class="text-xs font-medium">Sepet</p>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2" href="user-profile.html">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+                    <p class="text-primary text-xs font-semibold">Profil</p>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Add Address Modal -->
+        <div id="addAddressModal" class="fixed inset-0 z-50 hidden">
+            <!-- Backdrop -->
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm modal-backdrop" onclick="closeAddAddressModal()"></div>
+            
+            <!-- Modal Content -->
+            <div class="absolute bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark rounded-t-3xl max-h-[90vh] overflow-hidden">
+                <div class="sticky top-0 bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark p-4 flex items-center justify-between">
+                    <h2 class="text-text-light dark:text-text-dark text-lg font-bold" id="addressModalTitle">Yeni Adres Ekle</h2>
+                    <button onclick="closeAddAddressModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                        <span class="material-symbols-outlined text-xl text-text-light dark:text-text-dark">close</span>
+                    </button>
+                </div>
+                
+                <div class="overflow-y-auto max-h-[calc(90vh-80px)]">
+                    <form id="addAddressForm" class="p-4 flex flex-col gap-4">
+                    <input type="hidden" id="editAddressId" />
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">Adres Başlığı</label>
+                        <input type="text" id="addressTitle" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary" placeholder="Örn: Ev, İş" required />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">Ad Soyad</label>
+                        <input type="text" id="fullName" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary" placeholder="Ad Soyad" required />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">Telefon</label>
+                        <input type="tel" id="addressPhone" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary" placeholder="05XX XXX XX XX" required />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">İl</label>
+                        <select id="city" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary" required>
+                            <option value="">İl Seçin</option>
+                            <option value="istanbul">İstanbul</option>
+                            <option value="ankara">Ankara</option>
+                            <option value="izmir">İzmir</option>
+                            <option value="antalya">Antalya</option>
+                            <option value="bursa">Bursa</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">İlçe</label>
+                        <input type="text" id="district" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary" placeholder="İlçe" required />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">Mahalle</label>
+                        <input type="text" id="neighborhood" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary" placeholder="Mahalle" required />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="text-text-light dark:text-text-dark text-sm font-semibold">Açık Adres</label>
+                        <textarea id="fullAddress" rows="3" class="form-input w-full rounded-xl border border-border-light dark:border-border-dark bg-card-background-light dark:bg-card-background-dark px-4 py-3 text-text-light dark:text-text-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-2 focus:ring-primary resize-none" placeholder="Sokak, cadde, bina no, daire no vb." required></textarea>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="isDefault" class="w-5 h-5 text-primary rounded" />
+                        <label for="isDefault" class="text-text-light dark:text-text-dark text-sm">Varsayılan adres olarak ayarla</label>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-2">
+                        <button type="button" onclick="closeAddAddressModal()" class="flex-1 py-3 rounded-xl border border-border-light dark:border-border-dark text-text-light dark:text-text-dark font-semibold hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors">İptal</button>
+                        <button type="submit" class="flex-1 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors">Kaydet</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Cart Manager -->
+    <script src="cart-manager.js"></script>
+    
+    <!-- JavaScript -->
+    <script>
+        let addresses = [];
+
+        // Navigation
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'user-profile.html';
+            }
+        }
+
+        // Load addresses
+        function loadAddresses() {
+            const saved = localStorage.getItem('savedAddresses');
+            if (saved) {
+                addresses = JSON.parse(saved);
+            } else {
+                // Default addresses
+                addresses = [
+                    {
+                        id: 1,
+                        title: 'Ev',
+                        fullName: 'Ayşe Yılmaz',
+                        phone: '0555 123 45 67',
+                        city: 'İstanbul',
+                        district: 'Kadıköy',
+                        neighborhood: 'Moda',
+                        fullAddress: 'Moda Caddesi No: 123 Daire: 5',
+                        isDefault: true
+                    },
+                    {
+                        id: 2,
+                        title: 'İş',
+                        fullName: 'Ayşe Yılmaz',
+                        phone: '0555 123 45 67',
+                        city: 'İstanbul',
+                        district: 'Şişli',
+                        neighborhood: 'Mecidiyeköy',
+                        fullAddress: 'Büyükdere Caddesi No: 45 Kat: 8',
+                        isDefault: false
+                    }
+                ];
+                saveAddresses();
+            }
+            renderAddresses();
+        }
+
+        // Save addresses
+        function saveAddresses() {
+            localStorage.setItem('savedAddresses', JSON.stringify(addresses));
+        }
+
+        // Render addresses
+        function renderAddresses() {
+            const container = document.getElementById('addressesList');
+            const addressesContent = document.getElementById('addressesContent');
+            const emptyState = document.getElementById('emptyAddressesState');
+            container.innerHTML = '';
+
+            if (addresses.length === 0) {
+                if (addressesContent) addressesContent.classList.add('hidden');
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            }
+
+            if (addressesContent) addressesContent.classList.remove('hidden');
+            if (emptyState) emptyState.classList.add('hidden');
+
+            addresses.forEach(address => {
+                const card = document.createElement('div');
+                card.className = `address-card bg-card-background-light dark:bg-card-background-dark rounded-xl p-4 shadow-soft border-2 ${address.isDefault ? 'selected border-primary' : 'border-transparent'}`;
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary text-xl">${address.title === 'Ev' ? 'home' : address.title === 'İş' ? 'work' : 'location_on'}</span>
+                            <h3 class="text-text-light dark:text-text-dark font-semibold text-base">${address.title}</h3>
+                            ${address.isDefault ? '<span class="bg-primary text-white text-xs px-2 py-1 rounded-full">Varsayılan</span>' : ''}
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editAddress(${address.id})" class="p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-lg">edit</span>
+                            </button>
+                            <button onclick="deleteAddress(${address.id})" class="p-2 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-red-500 text-lg">delete</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-text-light dark:text-text-dark text-sm">${address.fullName}</p>
+                        <p class="text-text-muted-light dark:text-text-muted-dark text-sm">${address.phone}</p>
+                        <p class="text-text-muted-light dark:text-text-muted-dark text-sm">${address.fullAddress}</p>
+                        <p class="text-text-muted-light dark:text-text-muted-dark text-sm">${address.neighborhood}, ${address.district}, ${address.city}</p>
+                    </div>
+                    <button onclick="setDefaultAddress(${address.id})" class="mt-3 w-full py-2 rounded-lg border border-border-light dark:border-border-dark text-text-light dark:text-text-dark text-sm font-medium hover:bg-background-light dark:hover:bg-background-dark transition-colors ${address.isDefault ? 'hidden' : ''}">
+                        Varsayılan Yap
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Open add address modal
+        function openAddAddressModal() {
+            const modal = document.getElementById('addAddressModal');
+            const modalContent = modal.querySelector('.absolute.bottom-0');
+            document.getElementById('addressModalTitle').textContent = 'Yeni Adres Ekle';
+            document.getElementById('addAddressForm').reset();
+            document.getElementById('editAddressId').value = '';
+            modal.classList.remove('hidden');
+            // Trigger animation
+            setTimeout(() => {
+                modalContent.classList.add('animate-slide-up');
+            }, 10);
+        }
+
+        // Close add address modal
+        function closeAddAddressModal() {
+            const modal = document.getElementById('addAddressModal');
+            const modalContent = modal.querySelector('.absolute.bottom-0');
+            modalContent.classList.remove('animate-slide-up');
+            modalContent.classList.add('animate-slide-down');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContent.classList.remove('animate-slide-down');
+            }, 300);
+        }
+
+        // Edit address
+        function editAddress(id) {
+            const address = addresses.find(a => a.id === id);
+            if (address) {
+                document.getElementById('editAddressId').value = address.id;
+                document.getElementById('addressTitle').value = address.title;
+                document.getElementById('fullName').value = address.fullName;
+                document.getElementById('addressPhone').value = address.phone;
+                document.getElementById('city').value = address.city.toLowerCase();
+                document.getElementById('district').value = address.district;
+                document.getElementById('neighborhood').value = address.neighborhood;
+                document.getElementById('fullAddress').value = address.fullAddress;
+                document.getElementById('isDefault').checked = address.isDefault;
+                document.getElementById('addressModalTitle').textContent = 'Adresi Düzenle';
+                
+                const modal = document.getElementById('addAddressModal');
+                const modalContent = modal.querySelector('.absolute.bottom-0');
+                modal.classList.remove('hidden');
+                // Trigger animation
+                setTimeout(() => {
+                    modalContent.classList.add('animate-slide-up');
+                }, 10);
+            }
+        }
+
+        // Delete address
+        function deleteAddress(id) {
+            if (confirm('Bu adresi silmek istediğinizden emin misiniz?')) {
+                addresses = addresses.filter(a => a.id !== id);
+                saveAddresses();
+                renderAddresses();
+                showMessage('Adres silindi!', 'success');
+            }
+        }
+
+        // Set default address
+        function setDefaultAddress(id) {
+            addresses.forEach(a => {
+                a.isDefault = a.id === id;
+            });
+            saveAddresses();
+            renderAddresses();
+            showMessage('Varsayılan adres güncellendi!', 'success');
+        }
+
+        // Form submission
+        document.getElementById('addAddressForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const editId = document.getElementById('editAddressId').value;
+            const addressData = {
+                id: editId ? parseInt(editId) : Date.now(),
+                title: document.getElementById('addressTitle').value,
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('addressPhone').value,
+                city: document.getElementById('city').options[document.getElementById('city').selectedIndex].text,
+                district: document.getElementById('district').value,
+                neighborhood: document.getElementById('neighborhood').value,
+                fullAddress: document.getElementById('fullAddress').value,
+                isDefault: document.getElementById('isDefault').checked
+            };
+
+            if (editId) {
+                // Update existing
+                const index = addresses.findIndex(a => a.id === parseInt(editId));
+                if (index !== -1) {
+                    addresses[index] = addressData;
+                }
+            } else {
+                // Add new
+                if (addressData.isDefault) {
+                    addresses.forEach(a => a.isDefault = false);
+                }
+                addresses.push(addressData);
+            }
+
+            saveAddresses();
+            renderAddresses();
+            closeAddAddressModal();
+            showMessage(editId ? 'Adres güncellendi!' : 'Adres eklendi!', 'success');
+        });
+
+        // Message function
+        function showMessage(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 ${type === 'success' ? 'bg-primary' : 'bg-red-500'} text-white px-6 py-3 rounded-xl shadow-lg`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Dark mode functionality
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const themeIcon = document.querySelector('[onclick="toggleDarkMode()"] .material-symbols-outlined');
+            if (themeIcon) {
+                if (document.documentElement.classList.contains('dark')) {
+                    themeIcon.textContent = 'light_mode';
+                } else {
+                    themeIcon.textContent = 'dark_mode';
+                }
+            }
+        }
+
+        // Initialize
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateThemeIcon();
+            loadAddresses();
+        });
+    </script>
+</body>
+</html>

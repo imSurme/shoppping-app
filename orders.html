@@ -118,6 +118,16 @@
         }
         
         /* Safe area for mobile devices */
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+        
         .safe-area-top {
             padding-top: env(safe-area-inset-top);
         }
@@ -172,7 +182,7 @@
         </div>
 
         <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark">
             <div class="flex px-2 py-1">
                 <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
                     <span class="material-symbols-outlined text-2xl">home</span>
@@ -283,7 +293,10 @@
                         </div>
                         
                         <div class="flex items-center gap-3 mb-3">
-                            <div class="w-16 h-16 rounded-lg bg-cover bg-center shrink-0" style="background-image: url('${firstItem.image}');"></div>
+                            <div class="w-16 h-16 rounded-lg bg-cover bg-center shrink-0 relative">
+                                ${firstItem.originalPrice && firstItem.originalPrice > firstItem.price ? `<span class="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">%${Math.round(((firstItem.originalPrice - firstItem.price) / firstItem.originalPrice) * 100)}</span>` : ''}
+                                <div class="w-full h-full rounded-lg bg-cover bg-center" style="background-image: url('${firstItem.image}');"></div>
+                            </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-medium text-text-light dark:text-text-dark truncate">${firstItem.name}</p>
                                 <p class="text-sm text-text-muted-light dark:text-text-muted-dark">
@@ -367,16 +380,27 @@
                 <div class="mb-6">
                     <h4 class="font-semibold mb-3 text-text-light dark:text-text-dark">Ürünler (${order.items.reduce((sum, item) => sum + item.quantity, 0)} adet)</h4>
                     <div class="space-y-3">
-                        ${order.items.map(item => `
-                            <div class="flex items-center gap-3 bg-card-background-light dark:bg-card-background-dark p-3 rounded-lg cursor-pointer hover:bg-border-light dark:hover:bg-border-dark transition-colors" onclick="goToProduct('${item.id}', '${encodeURIComponent(item.name)}', '${item.price}', '${encodeURIComponent(item.image)}', '${item.category || ''}', '${encodeURIComponent(item.description || '')}', '${item.size}')">
-                                <div class="w-14 h-14 rounded-lg bg-cover bg-center shrink-0" style="background-image: url('${item.image}');"></div>
+                        ${order.items.map(item => {
+                            const hasDiscount = item.originalPrice && item.originalPrice > item.price;
+                            const discountPercent = hasDiscount ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100) : 0;
+                            const originalPriceParam = item.originalPrice ? encodeURIComponent(item.originalPrice) : '';
+                            return `
+                            <div class="flex items-center gap-3 bg-card-background-light dark:bg-card-background-dark p-3 rounded-lg cursor-pointer hover:bg-border-light dark:hover:bg-border-dark transition-colors relative" onclick="goToProduct('${item.id}', '${encodeURIComponent(item.name)}', '${item.price}', '${encodeURIComponent(item.image)}', '${item.category || ''}', '${encodeURIComponent(item.description || '')}', '${item.size}', '${originalPriceParam}')">
+                                <div class="w-14 h-14 rounded-lg bg-cover bg-center shrink-0 relative">
+                                    ${hasDiscount ? `<span class="absolute top-0 left-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">%${discountPercent}</span>` : ''}
+                                    <div class="w-full h-full rounded-lg bg-cover bg-center" style="background-image: url('${item.image}');"></div>
+                                </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-medium text-text-light dark:text-text-dark text-sm truncate hover:text-primary">${item.name}</p>
                                     <p class="text-xs text-text-muted-light dark:text-text-muted-dark">${item.size} × ${item.quantity}</p>
                                 </div>
-                                <p class="font-semibold text-text-light dark:text-text-dark">₺${(item.price * item.quantity).toFixed(2)}</p>
+                                <div class="text-right">
+                                    <p class="font-semibold text-text-light dark:text-text-dark">₺${(item.price * item.quantity).toFixed(2)}</p>
+                                    ${hasDiscount ? `<p class="text-xs text-text-muted-light dark:text-text-muted-dark line-through">₺${(item.originalPrice * item.quantity).toFixed(2)}</p>` : ''}
+                                </div>
                             </div>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </div>
                 </div>
                 
@@ -428,9 +452,13 @@
         }
         
         // Navigate to product
-        function goToProduct(id, name, price, image, category, description, size) {
+        function goToProduct(id, name, price, image, category, description, size, originalPrice) {
             closeOrderDetail();
-            window.location.href = `product-detail.html?id=${id}&name=${name}&price=${price}&image=${image}&category=${category}&description=${description}&size=${size}`;
+            let url = `product-detail.html?id=${id}&name=${name}&price=${price}&image=${image}&category=${category}&description=${description}&size=${size}`;
+            if (originalPrice && originalPrice !== '') {
+                url += `&originalPrice=${originalPrice}`;
+            }
+            window.location.href = url;
         }
         
         // Navigation

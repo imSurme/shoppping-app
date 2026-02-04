@@ -123,9 +123,19 @@
             transform: scale(1.02);
         }
         
-        /* Bottom navigation */
+        /* Bottom navigation - mobilde sayfanın tam en altına yapışık */
         .nav-item {
             transition: none;
+        }
+        
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
         }
         
         /* Safe area for mobile devices */
@@ -160,9 +170,9 @@
             </div>
         </header>
 
-        <!-- Category Chips -->
-        <section class="px-4 pb-2">
-            <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+        <!-- Category Chips - yatay kaydırma, sağda kesilmesin -->
+        <section class="pb-1 overflow-hidden">
+            <div class="flex gap-3 overflow-x-auto overflow-y-hidden scrollbar-hide pb-1 px-4 min-w-0" style="-webkit-overflow-scrolling: touch;">
                 <button class="category-chip flex shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary px-6 py-3 shadow-soft" data-category="tumu">
                     <p class="text-white text-sm font-semibold">Tümü</p>
                 </button>
@@ -328,7 +338,7 @@
         </main>
 
         <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark">
             <div class="flex px-2 py-1">
                 <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2" href="index.html">
                     <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">home</span>

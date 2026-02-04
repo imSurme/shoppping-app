@@ -118,6 +118,17 @@
             transform: scale(1.05);
         }
         
+        /* Bottom nav - mobilde sayfanın tam en altına yapışık */
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+        
         /* Safe area for mobile devices */
         .safe-area-top {
             padding-top: env(safe-area-inset-top);
@@ -240,10 +251,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Settings Section -->
-            <div class="flex flex-col gap-2 mt-6">
                 <!-- Settings -->
                 <div class="profile-menu-item flex items-center gap-4 bg-card-background-light dark:bg-card-background-dark px-4 min-h-14 justify-between rounded-xl shadow-soft cursor-pointer" onclick="openSettings()">
                     <div class="flex items-center gap-4">
@@ -258,7 +266,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            <!-- Logout Section -->
+            <div class="flex flex-col gap-2 mt-6">
                 <!-- Logout -->
                 <div class="profile-menu-item flex items-center gap-4 bg-card-background-light dark:bg-card-background-dark px-4 min-h-14 justify-between rounded-xl shadow-soft cursor-pointer" onclick="logout()">
                     <div class="flex items-center gap-4">
@@ -272,7 +283,7 @@
         </main>
 
         <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-border-light dark:border-border-dark safe-area-bottom">
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark">
             <div class="flex px-2 py-1">
                 <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
                     <span class="material-symbols-outlined text-2xl">home</span>
@@ -305,16 +316,13 @@
 
         // Profile functions
         function changeProfilePicture() {
-            console.log('Change profile picture clicked');
-            showSuccessMessage('Profil fotoğrafı değiştirme özelliği yakında gelecek!');
-            // Here you would implement image picker functionality
+            // Redirect to personal info page to change profile picture
+            window.location.href = 'personal-info.html';
         }
 
         // Menu item functions
         function openPersonalInfo() {
-            console.log('Personal information clicked');
-            showSuccessMessage('Kişisel bilgiler sayfası açılıyor...');
-            // window.location.href = 'personal-info.html';
+            window.location.href = 'personal-info.html';
         }
 
         function openMyOrders() {
@@ -322,21 +330,15 @@
         }
 
         function openSavedAddresses() {
-            console.log('Saved addresses clicked');
-            showSuccessMessage('Kayıtlı adresler sayfası açılıyor...');
-            // window.location.href = 'saved-addresses.html';
+            window.location.href = 'saved-addresses.html';
         }
 
         function openPaymentMethods() {
-            console.log('Payment methods clicked');
-            showSuccessMessage('Ödeme yöntemleri sayfası açılıyor...');
-            // window.location.href = 'payment-methods.html';
+            window.location.href = 'payment-methods.html';
         }
 
         function openSettings() {
-            console.log('Settings clicked');
-            showSuccessMessage('Ayarlar sayfası açılıyor...');
-            // window.location.href = 'settings.html';
+            window.location.href = 'settings.html';
         }
 
         function logout() {
@@ -420,6 +422,43 @@
                 const user = JSON.parse(userData);
                 // Update profile information if available
                 console.log('User data loaded:', user);
+            }
+            
+            // Load profile picture from localStorage
+            const profilePicture = localStorage.getItem('userProfilePicture');
+            if (profilePicture) {
+                const profilePicElement = document.querySelector('.profile-picture');
+                if (profilePicElement) {
+                    profilePicElement.style.backgroundImage = `url(${profilePicture})`;
+                }
+            }
+            
+            // Also try to load from userPersonalInfo
+            const personalInfo = localStorage.getItem('userPersonalInfo');
+            if (personalInfo) {
+                const data = JSON.parse(personalInfo);
+                if (data.profilePicture) {
+                    const profilePicElement = document.querySelector('.profile-picture');
+                    if (profilePicElement) {
+                        profilePicElement.style.backgroundImage = `url(${data.profilePicture})`;
+                    }
+                }
+                
+                // Update name and email if available
+                if (data.firstName || data.lastName) {
+                    const nameElement = document.querySelector('.profile-picture').nextElementSibling.querySelector('p');
+                    if (nameElement && (data.firstName || data.lastName)) {
+                        nameElement.textContent = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+                    }
+                }
+                if (data.email) {
+                    const emailElements = document.querySelectorAll('p.text-text-muted-light, p.text-text-muted-dark');
+                    emailElements.forEach(el => {
+                        if (el.textContent.includes('@')) {
+                            el.textContent = data.email;
+                        }
+                    });
+                }
             }
         }
 

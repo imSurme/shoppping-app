@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html class="light" lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta name="theme-color" content="#008080"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+    <title>Ayarlar - Modern Shopping App</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#008080",
+                        "primary-dark": "#006666",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101922",
+                        "card-background-light": "#F8F9FA",
+                        "card-background-dark": "#1a242d",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.25rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-dark': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+                    }
+                },
+            },
+        }
+    </script>
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        .header-button {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .header-button:active {
+            transform: scale(0.9);
+        }
+        
+        .settings-item {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .settings-item:active {
+            transform: scale(0.98);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 28px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #008080;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        .bottom-nav {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+        
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-20 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md safe-area-top">
+            <div class="flex items-center p-4 pb-2 justify-between">
+                <button class="header-button flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-card-background-light dark:hover:bg-card-background-dark transition-colors" onclick="goBack()">
+                    <span class="material-symbols-outlined text-2xl text-text-light dark:text-text-dark">arrow_back</span>
+                </button>
+                
+                <h1 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Ayarlar</h1>
+                
+                <div class="w-12"></div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-grow p-4 pb-24">
+            
+            <!-- Appearance Section -->
+            <div class="mb-6">
+                <h2 class="text-text-muted-light dark:text-text-muted-dark text-xs font-semibold uppercase mb-3 px-1">Görünüm</h2>
+                <div class="flex flex-col gap-2">
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">dark_mode</span>
+                            </div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-medium">Karanlık Mod</p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs">Göz yormayan karanlık tema</p>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle" onchange="handleDarkModeToggle()" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="mb-6">
+                <h2 class="text-text-muted-light dark:text-text-muted-dark text-xs font-semibold uppercase mb-3 px-1">Bildirimler</h2>
+                <div class="flex flex-col gap-2">
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">notifications</span>
+                            </div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-medium">Push Bildirimleri</p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs">Sipariş ve kampanya bildirimleri</p>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pushNotifications" checked onchange="saveSetting('pushNotifications', this.checked)" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">email</span>
+                            </div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-medium">E-posta Bildirimleri</p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs">E-posta ile bildirim al</p>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotifications" checked onchange="saveSetting('emailNotifications', this.checked)" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">local_offer</span>
+                            </div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-medium">Kampanya Bildirimleri</p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs">İndirim ve kampanya haberleri</p>
+                            </div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="promoNotifications" checked onchange="saveSetting('promoNotifications', this.checked)" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy & Security Section -->
+            <div class="mb-6">
+                <h2 class="text-text-muted-light dark:text-text-muted-dark text-xs font-semibold uppercase mb-3 px-1">Gizlilik ve Güvenlik</h2>
+                <div class="flex flex-col gap-2">
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft cursor-pointer" onclick="openPrivacyPolicy()">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">privacy_tip</span>
+                            </div>
+                            <p class="text-text-light dark:text-text-dark text-base font-medium">Gizlilik Politikası</p>
+                        </div>
+                        <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-xl">chevron_right</span>
+                    </div>
+                    
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft cursor-pointer" onclick="openTermsOfService()">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">description</span>
+                            </div>
+                            <p class="text-text-light dark:text-text-dark text-base font-medium">Kullanım Koşulları</p>
+                        </div>
+                        <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-xl">chevron_right</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="mb-6">
+                <h2 class="text-text-muted-light dark:text-text-muted-dark text-xs font-semibold uppercase mb-3 px-1">Hakkında</h2>
+                <div class="flex flex-col gap-2">
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft cursor-pointer" onclick="openAbout()">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">info</span>
+                            </div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-medium">Uygulama Hakkında</p>
+                                <p class="text-text-muted-light dark:text-text-muted-dark text-xs">Versiyon 1.0.0</p>
+                            </div>
+                        </div>
+                        <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-xl">chevron_right</span>
+                    </div>
+                    
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft cursor-pointer" onclick="openHelp()">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">help</span>
+                            </div>
+                            <p class="text-text-light dark:text-text-dark text-base font-medium">Yardım ve Destek</p>
+                        </div>
+                        <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-xl">chevron_right</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="mb-6">
+                <h2 class="text-text-muted-light dark:text-text-muted-dark text-xs font-semibold uppercase mb-3 px-1">Veri Yönetimi</h2>
+                <div class="flex flex-col gap-2">
+                    <div class="settings-item flex items-center justify-between bg-card-background-light dark:bg-card-background-dark px-4 py-4 rounded-xl shadow-soft cursor-pointer" onclick="clearCache()">
+                        <div class="flex items-center gap-4">
+                            <div class="text-text-muted-light dark:text-text-muted-dark flex items-center justify-center rounded-lg bg-card-background-light dark:bg-card-background-dark shrink-0 size-10">
+                                <span class="material-symbols-outlined text-xl">delete_sweep</span>
+                            </div>
+                            <p class="text-text-light dark:text-text-dark text-base font-medium">Önbelleği Temizle</p>
+                        </div>
+                        <span class="material-symbols-outlined text-text-muted-light dark:text-text-muted-dark text-xl">chevron_right</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-20 bg-background-light dark:bg-background-dark border-t border-border-light dark:border-border-dark">
+            <div class="flex px-2 py-1">
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2" href="index.html">
+                    <span class="material-symbols-outlined text-2xl">home</span>
+                    <p class="text-xs font-medium">Ana Sayfa</p>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-text-muted-light dark:text-text-muted-dark py-2 relative" href="shopping-cart.html">
+                    <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+                    <p class="text-xs font-medium">Sepet</p>
+                    <span class="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold cart-badge hidden">0</span>
+                </a>
+                <a class="nav-item flex flex-1 flex-col items-center justify-center gap-1 text-primary py-2" href="user-profile.html">
+                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+                    <p class="text-primary text-xs font-semibold">Profil</p>
+                </a>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Cart Manager -->
+    <script src="cart-manager.js"></script>
+    
+    <!-- JavaScript -->
+    <script>
+        // Navigation
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'user-profile.html';
+            }
+        }
+
+        // Load settings
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            
+            // Dark mode
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            document.getElementById('darkModeToggle').checked = darkMode;
+            
+            // Notifications
+            document.getElementById('pushNotifications').checked = settings.pushNotifications !== false;
+            document.getElementById('emailNotifications').checked = settings.emailNotifications !== false;
+            document.getElementById('promoNotifications').checked = settings.promoNotifications !== false;
+        }
+
+        // Save setting
+        function saveSetting(key, value) {
+            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            settings[key] = value;
+            localStorage.setItem('appSettings', JSON.stringify(settings));
+            showMessage('Ayar kaydedildi!', 'success');
+        }
+
+        // Dark mode toggle
+        function handleDarkModeToggle() {
+            const isDark = document.getElementById('darkModeToggle').checked;
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            localStorage.setItem('darkMode', isDark);
+            updateThemeIcon();
+        }
+
+        // Privacy policy
+        function openPrivacyPolicy() {
+            alert('Gizlilik Politikası sayfası yakında eklenecek!');
+        }
+
+        // Terms of service
+        function openTermsOfService() {
+            alert('Kullanım Koşulları sayfası yakında eklenecek!');
+        }
+
+        // About
+        function openAbout() {
+            alert('Modern Shopping App\nVersiyon 1.0.0\n\nModern ve kullanıcı dostu alışveriş deneyimi sunan mobil uygulama.');
+        }
+
+        // Help
+        function openHelp() {
+            alert('Yardım ve Destek\n\nSorularınız için: destek@shoppingapp.com\nTelefon: 0850 123 45 67');
+        }
+
+        // Clear cache
+        function clearCache() {
+            if (confirm('Önbelleği temizlemek istediğinizden emin misiniz? Bu işlem bazı verileri silebilir.')) {
+                // Clear non-essential data
+                localStorage.removeItem('appSettings');
+                showMessage('Önbellek temizlendi!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
+
+        // Message function
+        function showMessage(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 ${type === 'success' ? 'bg-primary' : 'bg-red-500'} text-white px-6 py-3 rounded-xl shadow-lg`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Dark mode functionality
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+            document.getElementById('darkModeToggle').checked = document.documentElement.classList.contains('dark');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const themeIcon = document.querySelector('[onclick="toggleDarkMode()"] .material-symbols-outlined');
+            if (themeIcon) {
+                if (document.documentElement.classList.contains('dark')) {
+                    themeIcon.textContent = 'light_mode';
+                } else {
+                    themeIcon.textContent = 'dark_mode';
+                }
+            }
+        }
+
+        // Initialize
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateThemeIcon();
+            loadSettings();
+        });
+    </script>
+</body>
+</html>
