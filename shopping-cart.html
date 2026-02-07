@@ -364,31 +364,30 @@
             emptyCart.classList.add('hidden');
 
             cartItemsContainer.innerHTML = cartItems.map(item => `
-                <div class="cart-item relative flex gap-4 bg-card-background-light dark:bg-card-background-dark p-4 mb-3 rounded-xl shadow-soft" data-cart-id="${item.cartId}" data-product-id="${item.id}" data-product-name="${item.name}" data-product-price="${item.price}" data-product-original-price="${item.originalPrice || ''}" data-product-image="${item.image}" data-product-category="${item.category || ''}" data-product-description="${item.description || ''}" data-product-size="${item.size || ''}">
+                <div class="cart-item relative flex flex-col bg-card-background-light dark:bg-card-background-dark p-4 mb-3 rounded-xl shadow-soft" data-cart-id="${item.cartId}" data-product-id="${item.id}" data-product-name="${item.name}" data-product-price="${item.price}" data-product-original-price="${item.originalPrice || ''}" data-product-image="${item.image}" data-product-category="${item.category || ''}" data-product-description="${item.description || ''}" data-product-size="${item.size || ''}">
                     <!-- Delete button - top right -->
-                    <button class="delete-btn absolute top-2 right-2 p-1 text-text-muted-light dark:text-text-muted-dark hover:text-red-500 transition-colors">
+                    <button class="delete-btn absolute top-2 right-2 p-1 text-text-muted-light dark:text-text-muted-dark hover:text-red-500 transition-colors z-10">
                         <span class="material-symbols-outlined text-xl">delete</span>
                     </button>
                     
-                    <!-- Product image - clickable -->
-                    <div class="product-link cursor-pointer bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-[70px] shrink-0" style='background-image: url("${item.image}");'></div>
-                    
-                    <!-- Product info -->
-                    <div class="flex flex-1 flex-col justify-center pr-6">
-                        <!-- Product name - clickable -->
-                        <p class="product-link cursor-pointer text-text-light dark:text-text-dark text-base font-semibold leading-normal hover:text-primary transition-colors">${item.name}</p>
-                        <div class="flex items-center gap-2">
-                            <p class="text-primary text-base font-bold leading-normal">₺${item.price.toFixed(2)}</p>
-                            ${item.originalPrice && item.originalPrice > item.price ? `<p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺${item.originalPrice.toFixed(2)}</p>` : ''}
+                    <div class="flex gap-4 pr-6">
+                        <!-- Product image - clickable -->
+                        <div class="product-link cursor-pointer bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-[70px] shrink-0" style='background-image: url("${item.image}");'></div>
+                        <!-- Product info -->
+                        <div class="flex flex-1 flex-col justify-center min-w-0">
+                            <p class="product-link cursor-pointer text-text-light dark:text-text-dark text-base font-semibold leading-normal hover:text-primary transition-colors">${item.name}</p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-primary text-base font-bold leading-normal">₺${item.price.toFixed(2)}</p>
+                                ${item.originalPrice && item.originalPrice > item.price ? `<p class="text-text-muted-light dark:text-text-muted-dark text-sm line-through">₺${item.originalPrice.toFixed(2)}</p>` : ''}
+                            </div>
+                            <p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Beden: ${item.size}</p>
                         </div>
-                        <p class="text-text-muted-light dark:text-text-muted-dark text-sm font-normal leading-normal">Beden: ${item.size}</p>
-                        
-                        <!-- Quantity controls -->
-                        <div class="flex items-center gap-2 mt-2 text-text-light dark:text-text-dark">
-                            <button class="quantity-btn minus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">-</button>
-                            <input class="quantity-input text-base font-medium leading-normal w-8 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" type="number" value="${item.quantity}" min="1" max="10"/>
-                            <button class="quantity-btn plus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">+</button>
-                        </div>
+                    </div>
+                    <!-- Quantity controls - sağ alt -->
+                    <div class="flex items-center justify-end gap-2 text-text-light dark:text-text-dark">
+                        <button class="quantity-btn minus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">-</button>
+                        <input class="quantity-input text-base font-medium leading-normal w-8 p-0 text-center bg-transparent focus:outline-0 focus:ring-0 focus:border-none border-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" type="number" value="${item.quantity}" min="1" max="10"/>
+                        <button class="quantity-btn plus-btn text-base font-medium leading-normal flex h-8 w-8 items-center justify-center rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors border border-border-light dark:border-border-dark">+</button>
                     </div>
                 </div>
             `).join('');
