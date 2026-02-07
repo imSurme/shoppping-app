@@ -191,6 +191,19 @@
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
+        
+        /* Özet kartı açıkken detay alanı genişlesin */
+        #summaryDetails.is-open {
+            grid-template-rows: 1fr;
+        }
+        #summaryCard.is-open .summary-chevron {
+            transform: rotate(180deg);
+        }
+        
+        /* Sepet: max 3 ürün yüksekliği, sonrası kaydırılabilir (1 ürün ~110px) */
+        #cartItemsWrapper {
+            max-height: 330px;
+        }
     </style>
 </head>
 
@@ -214,34 +227,45 @@
             </div>
         </header>
 
-        <!-- Kaydırılabilir alan: ürünler + özet + Ödemeye Geç (mobilde buton görünsün diye) -->
-        <div id="cartScrollArea" class="flex-1 min-h-0 overflow-y-auto overscroll-behavior-y-contain" style="padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));">
-            <!-- Cart Content -->
-            <main class="px-4 pb-4" id="cartContent">
-                <div id="cartItems">
+        <!-- Ürünler alanı: max 3 ürün yüksekliği, fazlası kaydırılır -->
+        <div id="cartScrollArea" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+            <main id="cartItemsWrapper" class="flex-1 min-h-0 overflow-y-auto overscroll-behavior-y-contain px-4 pt-4">
+                <div id="cartItems" class="pb-4">
                     <!-- Cart items will be dynamically rendered here -->
                 </div>
             </main>
 
-            <!-- Cart Summary -->
-            <div id="cartSummary" class="bg-background-light dark:bg-background-dark p-4 border-t border-border-light dark:border-border-dark">
-                <div class="p-4 bg-card-background-light dark:bg-card-background-dark rounded-xl shadow-soft">
-                    <div class="flex justify-between gap-x-6 py-2">
-                        <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Ara Toplam</p>
-                        <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right" id="subtotal">₺0.00</p>
+            <!-- Özet + Ödemeye Geç: her zaman alt nav'ın üstünde sabit -->
+            <div id="cartSummary" class="shrink-0 bg-background-light dark:bg-background-dark p-4 pt-3 border-t border-border-light dark:border-border-dark pb-safe" style="padding-bottom: calc(1rem + 4.5rem + env(safe-area-inset-bottom, 0px));">
+                <div id="summaryCard" class="p-4 bg-card-background-light dark:bg-card-background-dark rounded-xl shadow-soft overflow-hidden">
+                    <!-- Başta görünen: sadece Toplam + ok -->
+                    <div class="flex items-center justify-between gap-3">
+                        <button type="button" id="summaryToggle" class="flex-1 flex items-center justify-between gap-3 py-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg" aria-expanded="false" aria-controls="summaryDetails">
+                            <span class="text-text-light dark:text-text-dark text-lg font-bold leading-normal">Toplam</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-primary text-lg font-bold leading-normal" id="total">₺0.00</span>
+                                <span class="material-symbols-outlined text-2xl text-text-muted-light dark:text-text-muted-dark transition-transform duration-300 summary-chevron">expand_more</span>
+                            </div>
+                        </button>
                     </div>
-                    <div id="savingsRow" class="hidden flex justify-between gap-x-6 py-2">
-                        <p class="text-green-500 text-base font-normal leading-normal">Kazancınız</p>
-                        <p class="text-green-500 text-base font-semibold leading-normal text-right" id="savings">-₺0.00</p>
-                    </div>
-                    <div class="flex justify-between gap-x-6 py-2">
-                        <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Kargo</p>
-                        <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right">Ücretsiz</p>
-                    </div>
-                    <div class="border-t border-border-light dark:border-border-dark my-2"></div>
-                    <div class="flex justify-between gap-x-6 py-2">
-                        <p class="text-text-light dark:text-text-dark text-lg font-bold leading-normal">Toplam</p>
-                        <p class="text-primary text-lg font-bold leading-normal text-right" id="total">₺0.00</p>
+                    <!-- Açılınca görünen detaylar -->
+                    <div id="summaryDetails" class="summary-details grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out" aria-hidden="true">
+                        <div class="min-h-0 overflow-hidden">
+                            <div class="pt-2 border-t border-border-light dark:border-border-dark mt-2">
+                                <div class="flex justify-between gap-x-6 py-2">
+                                    <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Ara Toplam</p>
+                                    <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right" id="subtotal">₺0.00</p>
+                                </div>
+                                <div id="savingsRow" class="hidden flex justify-between gap-x-6 py-2">
+                                    <p class="text-green-500 text-base font-normal leading-normal">Kazancınız</p>
+                                    <p class="text-green-500 text-base font-semibold leading-normal text-right" id="savings">-₺0.00</p>
+                                </div>
+                                <div class="flex justify-between gap-x-6 py-2">
+                                    <p class="text-text-muted-light dark:text-text-muted-dark text-base font-normal leading-normal">Kargo</p>
+                                    <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal text-right">Ücretsiz</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex pt-4 justify-center">
@@ -327,7 +351,6 @@
             const cartItemsContainer = document.getElementById('cartItems');
             const emptyCart = document.getElementById('emptyCart');
             const cartSummary = document.getElementById('cartSummary');
-            const cartContent = document.getElementById('cartContent');
             const cartScrollArea = document.getElementById('cartScrollArea');
 
             if (cartItems.length === 0) {
@@ -393,7 +416,8 @@
             const total = cartManager.getCartTotal(); // Actual price to pay
 
             document.getElementById('subtotal').textContent = `₺${subtotalOriginal.toFixed(2)}`;
-            document.getElementById('total').textContent = `₺${total.toFixed(2)}`;
+            const totalEl = document.getElementById('total');
+            if (totalEl) totalEl.textContent = `₺${total.toFixed(2)}`;
             
             // Show savings if there are any discounts
             const savingsRow = document.getElementById('savingsRow');
@@ -628,9 +652,24 @@
             }
         });
 
+        // Özet kartı aç/kapa
+        function initSummaryToggle() {
+            const toggle = document.getElementById('summaryToggle');
+            const details = document.getElementById('summaryDetails');
+            const card = document.getElementById('summaryCard');
+            if (!toggle || !details || !card) return;
+            toggle.addEventListener('click', function() {
+                const isOpen = details.classList.toggle('is-open');
+                card.classList.toggle('is-open', isOpen);
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                details.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            });
+        }
+
         // Initialize cart display
         document.addEventListener('DOMContentLoaded', function() {
             renderCartItems();
+            initSummaryToggle();
         });
     </script>
 </body>
