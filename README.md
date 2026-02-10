@@ -88,14 +88,6 @@ shopping_app/
    - Add items to your cart
    - Complete the checkout process
 
-### Screenshots
-
-The app features:
-- Clean, modern UI with teal (#008080) accent color
-- Smooth animations and transitions
-- Intuitive navigation with bottom navigation bar
-- Toast notifications for user feedback
-
 ### Key Components
 
 #### Cart Manager (`cart-manager.js`)
