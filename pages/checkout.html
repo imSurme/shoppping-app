@@ -429,7 +429,7 @@
     </div>
 
     <!-- Cart Manager -->
-    <script src="cart-manager.js"></script>
+    <script src="../js/cart-manager.js"></script>
     
     <!-- JavaScript -->
     <script>
@@ -558,7 +558,7 @@
             // Check if cart is empty
             if (cartManager.getCartCount() === 0) {
                 alert('Sepetiniz boş! Önce ürün ekleyin.');
-                window.location.href = 'index.html';
+                window.location.href = '../index.html';
                 return;
             }
             
@@ -599,7 +599,7 @@
         
         function goToHome() {
             cartManager.clearCart();
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
         
         function goToStep(step) {

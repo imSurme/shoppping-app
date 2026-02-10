@@ -55,18 +55,21 @@ This project was created using:
 
 ```
 shopping_app/
-├── index.html              # Home page - Product listing
-├── product-detail.html     # Product detail page
-├── shopping-cart.html      # Shopping cart
-├── checkout.html           # Checkout process
-├── user-profile.html       # User profile page
-├── personal-info.html      # Personal information
-├── saved-addresses.html    # Saved addresses
-├── payment-methods.html    # Payment methods
-├── orders.html             # Order history
-├── settings.html           # App settings
-├── cart-manager.js         # Cart management system
-└── README.md               # Documentation
+├── index.html                      # Home page - Product listing
+├── README.md                       # Documentation
+├── js/
+│   └── cart-manager.js             # Cart management system
+├── pages/
+│   ├── product-detail.html         # Product detail page
+│   ├── shopping-cart.html          # Shopping cart
+│   ├── checkout.html               # Checkout process
+│   └── profile/
+│       ├── user-profile.html       # User profile page
+│       ├── personal-info.html      # Personal information
+│       ├── saved-addresses.html    # Saved addresses
+│       ├── payment-methods.html    # Payment methods
+│       ├── orders.html             # Order history
+│       └── settings.html           # App settings
 ```
 
 ### Getting Started
@@ -146,18 +149,21 @@ Bu proje asagidaki yaklasimlarla olusturuldu:
 
 ```
 shopping_app/
-├── index.html              # Ana sayfa - Urun listesi
-├── product-detail.html     # Urun detay sayfasi
-├── shopping-cart.html      # Alisveris sepeti
-├── checkout.html           # Odeme sureci
-├── user-profile.html       # Kullanici profil sayfasi
-├── personal-info.html      # Kisisel bilgiler
-├── saved-addresses.html    # Kayitli adresler
-├── payment-methods.html    # Odeme yontemleri
-├── orders.html             # Siparis gecmisi
-├── settings.html           # Uygulama ayarlari
-├── cart-manager.js         # Sepet yonetim sistemi
-└── README.md               # Dokumantasyon
+├── index.html                      # Ana sayfa - Urun listesi
+├── README.md                       # Dokumantasyon
+├── js/
+│   └── cart-manager.js             # Sepet yonetim sistemi
+├── pages/
+│   ├── product-detail.html         # Urun detay sayfasi
+│   ├── shopping-cart.html          # Alisveris sepeti
+│   ├── checkout.html               # Odeme sureci
+│   └── profile/
+│       ├── user-profile.html       # Kullanici profil sayfasi
+│       ├── personal-info.html      # Kisisel bilgiler
+│       ├── saved-addresses.html    # Kayitli adresler
+│       ├── payment-methods.html    # Odeme yontemleri
+│       ├── orders.html             # Siparis gecmisi
+│       └── settings.html           # Uygulama ayarlari
 ```
 
 ### Baslarken
