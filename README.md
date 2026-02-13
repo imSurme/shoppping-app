@@ -20,7 +20,7 @@
 
 ### About
 
-Modern Shopping App is a fully functional e-commerce web application built with modern web technologies. This project was developed using **AI-assisted development** and **Vibe Coding** methodology, leveraging the power of AI tools to accelerate the development process while maintaining high code quality.
+Modern Shopping App is a **demo/simulation** e-commerce web application built with modern web technologies. This project demonstrates a complete e-commerce flow including product browsing, cart management, and checkout process. **Note:** This is a frontend-only demo - no real orders are created and no actual payments are processed. All data is simulated and stored locally using LocalStorage. This project was developed using **AI-assisted development** and **Vibe Coding** methodology, leveraging the power of AI tools to accelerate the development process while maintaining high code quality.
 
 ### Built with AI & Vibe Coding
 
@@ -35,7 +35,7 @@ This project was created using:
 - **Product Catalog**: Browse products with category filtering and search functionality
 - **Product Details**: Detailed product pages with size selection, quantity picker, and reviews
 - **Shopping Cart**: Full cart management with quantity adjustments and price calculations
-- **Checkout Process**: Multi-step checkout with address and payment method selection
+- **Checkout Process**: Multi-step checkout simulation with address and payment method selection (demo only - no real payments)
 - **User Profile**: Personal information, saved addresses, payment methods, and order history
 - **Dark Mode**: Eye-friendly dark theme support
 - **Responsive Design**: Mobile-first design that works on all devices
@@ -76,7 +76,7 @@ shopping_app/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/shopping_app.git
+   git clone https://github.com/imSurme/shopping_app.git
    ```
 
 2. **Open in browser**
@@ -114,7 +114,7 @@ Three-step checkout process:
 
 ### Hakkinda
 
-Modern Shopping App, modern web teknolojileriyle gelistirilmis tam islevsel bir e-ticaret web uygulamasidir. Bu proje, **yapay zeka destekli gelistirme** ve **Vibe Coding** metodolojisi kullanilarak olusturulmustur. AI araclari kullanilarak hizli ve kaliteli kod gelistirme sureci gerceklestirilmistir.
+Modern Shopping App, modern web teknolojileriyle gelistirilmis bir **demo/simulasyon** e-ticaret web uygulamasidir. Bu proje, urun gezintisi, sepet yonetimi ve odeme sureci dahil olmak uzere tam bir e-ticaret akisini gosterir. **Not:** Bu yalnizca frontend demo projesidir - gercek siparis olusturulmaz ve gercek odeme islemi yapilmaz. Tum veriler simule edilir ve LocalStorage kullanilarak yerel olarak saklanir. Bu proje, **yapay zeka destekli gelistirme** ve **Vibe Coding** metodolojisi kullanilarak olusturulmustur. AI araclari kullanilarak hizli ve kaliteli kod gelistirme sureci gerceklestirilmistir.
 
 ### AI ve Vibe Coding ile Gelistirildi
 
@@ -129,7 +129,7 @@ Bu proje asagidaki yaklasimlarla olusturuldu:
 - **Urun Katalogu**: Kategori filtreleme ve arama ozellikleriyle urunlere gozatin
 - **Urun Detaylari**: Beden secimi, miktar secici ve degerlendirmeler iceren detayli urun sayfalari
 - **Alisveris Sepeti**: Miktar ayarlama ve fiyat hesaplamalari ile tam sepet yonetimi
-- **Odeme Sureci**: Adres ve odeme yontemi secimli cok adimli odeme
+- **Odeme Sureci**: Adres ve odeme yontemi secimli cok adimli odeme simulasyonu (yalnizca demo - gercek odeme yapilmaz)
 - **Kullanici Profili**: Kisisel bilgiler, kayitli adresler, odeme yontemleri ve siparis gecmisi
 - **Karanlik Mod**: Goz dostu karanlik tema destegi
 - **Duyarli Tasarim**: Tum cihazlarda calisan mobil oncelikli tasarim
@@ -170,7 +170,7 @@ shopping_app/
 
 1. **Depoyu klonlayin**
    ```bash
-   git clone https://github.com/yourusername/shopping_app.git
+   git clone https://github.com/imSurme/shopping_app.git
    ```
 
 2. **Tarayicida acin**
