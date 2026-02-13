@@ -3,8 +3,10 @@
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Design](https://img.shields.io/badge/Design-Google%20Stitch-4285F4.svg)
-![AI](https://img.shields.io/badge/Code-Claude%20Opus%204.5-orange.svg)
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Stitch" height="24" style="vertical-align: middle;"> **Google Stitch** &nbsp;&nbsp;&nbsp;
+<img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude AI" height="24" style="vertical-align: middle;"> **Claude Opus 4.5**
+
 ![Made with AI](https://img.shields.io/badge/Made%20with-Vibe%20Coding-purple.svg)
 
 **A modern, mobile-first e-commerce web application**
