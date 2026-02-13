@@ -11,7 +11,7 @@
       <strong>Google Stitch</strong>
     </td>
     <td align="center" style="padding-left: 30px;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude AI" height="32"><br>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Claude_AI_symbol.svg" alt="Claude AI" height="32"><br>
       <strong>Claude Opus 4.5</strong>
     </td>
   </tr>
