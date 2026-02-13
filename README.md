@@ -4,8 +4,18 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Stitch" height="24" style="vertical-align: middle;"> **Google Stitch** &nbsp;&nbsp;&nbsp;
-<img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude AI" height="24" style="vertical-align: middle;"> **Claude Opus 4.5**
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Stitch" height="32"><br>
+      <strong>Google Stitch</strong>
+    </td>
+    <td align="center" style="padding-left: 30px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude AI" height="32"><br>
+      <strong>Claude Opus 4.5</strong>
+    </td>
+  </tr>
+</table>
 
 ![Made with AI](https://img.shields.io/badge/Made%20with-Vibe%20Coding-purple.svg)
 
